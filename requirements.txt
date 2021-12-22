@@ -128,7 +128,6 @@ PyMeeus==0.5.11
 Pympler==0.9
 pyparsing==2.4.7
 pypiwin32==223
-pyrsistent==0.18.0
 pywin32==301
 pywin32-ctypes==0.2.0
 pywinpty==1.1.3

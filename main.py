@@ -5,6 +5,7 @@
 #from numpy import concatenate
 #from pandas.core.frame import DataFrame
 #from pyarrow import ListValue
+from PIL.Image import TRANSPOSE
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -26,6 +27,15 @@ st.set_page_config(
     #    "About": [About]
     #}
 )
+
+# Code snippet to hide the menu and the "made with streamlit" banner
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 
 # Check if 'update_flag' already exists in session_state
@@ -142,7 +152,103 @@ def update_deck_elo(deck_name1, deck_name2, elo_updated1, elo_updated2, score1, 
 
 
 
+def duello_vinto_format(row):
+    """https://queirozf.com/entries/pandas-dataframe-examples-styling-cells-and-conditional-formatting#highlight-cell-if-condition"""
+    vittoria = 'background-color: #248f24'
+    sconfitta = 'background-color: #990000'
+    default = ''
+
+    if row["Risultato"] == 1:
+        return [vittoria, sconfitta, default]
+    else:
+        return [sconfitta, vittoria, default]
+
+
+
+def storico_duelli(deck1, deck2, matches):
+    matches_horizontal = pd.DataFrame(columns=["Data", "Deck 1", "Deck 2", "Risultato", "Elo deck 1", "Elo deck 2"])
+    for index, row in matches.iterrows():
+        if matches.loc[index]["deck_pos"] == 1:
+            deck_name = matches.loc[index]["deck_name"]
+            if deck_name == deck1 or deck_name == deck2:
+                deck_name2 = matches.loc[index+1]["deck_name"]
+                if deck_name2 == deck1 or deck_name2 == deck2:
+                    data = matches.loc[index]["date"]
+                    elo_deck1 = matches.loc[index]["elo_before"]
+                    elo_deck2 = matches.loc[index+1]["elo_before"]
+                    if matches.loc[index]["win_flag"] == 1: risultato = 1
+                    else: risultato = 2
+                    match_horizontal = [data, deck_name, deck_name2, risultato, elo_deck1, elo_deck2 ]
+                    match_horizontal = pd.Series(match_horizontal, index = matches_horizontal.columns)
+                    matches_horizontal = matches_horizontal.append(match_horizontal, ignore_index=True)
+    # matches_horizontal.style.format(precision=0, formatter={("Elo deck 1"): "{:.1f}"})
+    st.dataframe(
+        matches_horizontal.style.format(
+            precision=0, 
+            formatter = { 
+                ("Elo deck 1"): "{:.0f}",
+                ("Elo deck 2"): "{:.0f}"
+                }).apply(
+                    duello_vinto_format, subset=["Deck 1","Deck 2", "Risultato"], axis = 1
+                )
+    )
+    return True
+
+
+
+def stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali):
+    """ Statistiche delle percentuali di vittoria
+    funzione utilizzata nelle statistiche duelli, per rappresentare la percentuale di vittoria contro
+    l'altro mazzo con elementi st.metric """
+    delta_color_str = "normal"
+    if vittorie_1 == vittorie_2:
+        delta_color_str = "off"
+    elif vittorie_1 < vittorie_2:
+        delta_color_str = "inverse"
+    st.metric(
+        label = "% vittorie "+ deck1, 
+        value = str(round(vittorie_1/(duelli_totali) * 100, 0)) + " %", 
+        delta = str(vittorie_1) + " duelli vinti",
+        delta_color = delta_color_str)
+
+
+
+def statistiche_duelli(deck1, deck2, matches):
+    duelli_totali = 0
+    vittorie_1 = 0
+    vittorie_2 = 0
+
+    for index, row in matches.iterrows():
+        if matches.loc[index]["deck_pos"] == 1:
+            deck_name = matches.loc[index]["deck_name"]
+            if deck_name == deck1 or deck_name == deck2:
+                deck_name2 = matches.loc[index+1]["deck_name"]
+                if deck_name2 == deck1 or deck_name2 == deck2:
+                    duelli_totali +=1
+                    if matches.loc[index]["win_flag"] == 1 and deck_name == deck1:
+                        vittorie_1 += 1
+                    elif matches.loc[index]["win_flag"] == 1 and deck_name == deck2:
+                        vittorie_2 += 1
+                    elif matches.loc[index+1]["win_flag"] == 1 and deck_name2 == deck1:
+                        vittorie_1 += 1
+                    else:
+                        vittorie_2 += 1
+    
+    st.subheader("Statistiche dei duelli tra " + deck1 + " e " + deck2)
+    st.write("Numero totale di duelli: " +  str(duelli_totali))
+    stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali)
+    stat_perc_vittorie(deck2, vittorie_2, vittorie_1, duelli_totali)
+
+    return True
+
+
+
 def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi):
+
+    if deck1 == deck2: 
+        st.error("Errore. Mazzo 1 e Mazzo 2 combaciano.")
+        return False
+
     ws = sh.worksheet("matches")
 
     date = str(datetime.now().strftime("%d/%m/%Y"))
@@ -201,49 +307,18 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi):
     data_list_2 = pd.DataFrame(data_list_2)
     data_list = pd.concat([data_list_1, data_list_2], axis=0)
     matches = matches.append(data_list, ignore_index=True)
-    st.write(data_list)
-    st.write(matches)
+
+    # statistiche dei duelli tra i due deck
+    statistiche_duelli(deck1, deck2, matches)
+    storico_duelli(deck1, deck2, matches)
+
+    # scheda con dettaglio dei duelli tra i due deck
+
     spread.df_to_sheet(matches, sheet = "matches", index = False)
 
     update_deck_elo(deck1, deck2, elo_after_1, elo_after_2, win_flag_1, win_flag_2, lista_mazzi)
 
     return True
-
-
-
-def insert_match(deck_1, deck_2, outcome):
-    date = datetime.today().date()
-    time = datetime.now().time()
-    outcome_df_1 = 0
-    outcome_df_2 = 0
-    if outcome == "1":
-        outcome_df_1 = 1
-    else: 
-        outcome_df_2 = 0
-    updated_matches = matches.append([ 
-          max(matches["row_key"]) + 1
-        , deck_1 
-        , "id"
-        , outcome_df_1
-        , date
-        , time
-        , "id_tourn"
-        , 0
-        , 1 ])
-    match_row1 = [
-          max(matches["row_key"]) + 1
-        , 1
-        , deck_1 
-        , "id"
-        , outcome_df_1
-        , date
-        , time
-        , "id_tourn"
-        , 0
-        , 1]
-    st.write(updated_matches)
-    #spread.df_to_sheet(updated_matches)
-    st.sidebar.info('Updated to GoogleSheet')
 
 
 
@@ -295,9 +370,9 @@ if pagina_selezionata == "Aggiungi un duello":
 
     if button_insert_match:
         matches, lista_mazzi, tournaments = download_data()
-        insert_match2(matches, deck_1, deck_2, outcome, tournament, lista_mazzi)
-        st.write("Inserito")
-
+        outcome = insert_match2(matches, deck_1, deck_2, outcome, tournament, lista_mazzi)
+        if outcome == True:
+            st.success("Duello inserito correttamente a sistema")
 
 ################################
 # PAGINA: "Classifiche"

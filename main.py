@@ -236,8 +236,9 @@ def statistiche_duelli(deck1, deck2, matches):
     
     st.subheader("Statistiche dei duelli tra " + deck1 + " e " + deck2)
     st.write("Numero totale di duelli: " +  str(duelli_totali))
-    stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali)
-    stat_perc_vittorie(deck2, vittorie_2, vittorie_1, duelli_totali)
+    if duelli_totali > 0:
+        stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali)
+        stat_perc_vittorie(deck2, vittorie_2, vittorie_1, duelli_totali)
 
     return True
 
@@ -345,6 +346,7 @@ pagina_selezionata = st.sidebar.radio("Menu:",
                      options = [
                          "Aggiungi un duello", 
                          "Classifiche",
+                         "Confronta mazzi",
                          "Info"])
 
 
@@ -384,6 +386,26 @@ if pagina_selezionata == "Classifiche":
     classifica.columns = ["# Cat.", "Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note"]
     classifica.style.bar()
     st.write(classifica[["Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note"]])
+
+
+
+################################
+# PAGINA: "Info"
+if pagina_selezionata == "Confronta mazzi":
+
+    with st.form(key = 'confronta_mazzi'):
+        st.subheader("Seleziona due mazzi da confrontare")
+        c1, c2  = st.columns((1, 1))
+        with c1: 
+            deck_1 = st.selectbox("Mazzo 1: ", lista_mazzi["deck_name"])
+        with c2: 
+            deck_2 = st.selectbox("Mazzo 2: ", lista_mazzi["deck_name"])
+        button_confronta_mazzi = st.form_submit_button("Confronta mazzi")
+
+    if button_confronta_mazzi:
+        statistiche_duelli(deck_1, deck_2, matches)
+        storico_duelli(deck_1, deck_2, matches)
+
 
 
 ################################

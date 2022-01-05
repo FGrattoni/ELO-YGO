@@ -382,7 +382,7 @@ if pagina_selezionata == "Classifiche":
 
     classifica = lista_mazzi.copy()
     classifica = classifica.astype({"elo": int})
-    classifica['percentage'] = classifica['percentage'].apply(lambda x: round(x * 100, 1) ).astype('string') + " %"
+    #classifica['percentage'] = classifica['percentage'].apply(lambda x: round(x * 100, 1) ).astype('string') + " %"
     classifica.columns = ["# Cat.", "Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note"]
     classifica.style.bar()
     st.write(classifica[["Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note"]])
@@ -390,7 +390,7 @@ if pagina_selezionata == "Classifiche":
 
 
 ################################
-# PAGINA: "Info"
+# PAGINA: "Confronta Mazzi"
 if pagina_selezionata == "Confronta mazzi":
 
     with st.form(key = 'confronta_mazzi'):

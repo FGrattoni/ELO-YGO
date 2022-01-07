@@ -12,7 +12,14 @@ from datetime import datetime
 from gspread_pandas import Spread, Client
 import gspread 
 from google.oauth2 import service_account
+import requests
 #from gsheetsdb import connect
+
+
+# Telegram options
+chat_id = st.secrets["telegram"]['chat_id']
+bot_id = st.secrets["telegram"]['bot_id']
+
 
 
 # Streamlit CONFIGURATION settings
@@ -81,9 +88,38 @@ def update_the_spreadsheet(spreadsheetname, dataframe):
 
 
 
+#TELEGRAM
+# Send message - guide: https://www.youtube.com/watch?v=M9IGRWFX_1w
+def telegram_send_message(message, bot_id, chat_id):
+    url_req = "https://api.telegram.org/bot" + bot_id + "/sendMessage" + "?chat_id=" + chat_id + "&text=" + message + "&parse_mode=HTML"
+    requests.get(url_req)
+    return True
+
+
+
+def telegram_duello_message(deck_1, deck_2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, emoji_flag = True):
+    outcome_1, outcome_2, pointer = (" - ", " - ", "")
+    if emoji_flag:
+        outcome_1 = " ✅ - ❌ "
+        outcome_2 = " ❌ - ✅ "
+    else: 
+        pointer = "⯈"
+
+    message = ""
+    if outcome == 1:
+        message = pointer + "<b> " + deck_1 + "</b>" + outcome_1 + deck_2 + "\n"
+        message = message + str(elo_after_1) + " (⯅ " + str(elo_after_1- elo_deck1) + ") - " + str(elo_after_2) + " (⯆ " + str(elo_after_2 - elo_deck2) + ")" 
+    else: 
+        message = deck_1 + outcome_2 + pointer + "<b> " + deck_2 + "</b>" + "\n" 
+        message = message + str(elo_after_1) + " (⯆ " + str(elo_after_1- elo_deck1) + ") - " + str(elo_after_2) + " (⯅ " + str(elo_after_2 - elo_deck2) + ")" 
+    return message
+telegram_send_message(telegram_duello_message("Slifer", "Insetti", 2, 20, 1000, 324, 303, False), bot_id, chat_id)
+#  ❌ - ✅ 
+
+
 #ELO calculation functions
 def elo_calculation(elo_before, elo_opponent, outcome, K = 32):
-    """ funzione per calcolare il nuovo rating ELO
+    """ funzione per calcolare il nuoo rating ELO
     elo_before: elo del giocatore prima della partita
     elo_opponent: elo del giocatore sfidante
     outcome: 1=vittoria, 0=sconfitta

@@ -108,10 +108,10 @@ def telegram_duello_message(deck_1, deck_2, outcome, elo_deck1, elo_after_1, elo
     message = ""
     if outcome == 1:
         message = pointer + "<b> " + deck_1 + "</b>" + outcome_1 + deck_2 + "\n"
-        message = message + str(elo_after_1) + " (⯅ " + str(elo_after_1- elo_deck1) + ") - " + str(elo_after_2) + " (⯆ " + str(elo_after_2 - elo_deck2) + ")" 
+        message = message + str(elo_after_1) + " (▲ " + str(elo_after_1- elo_deck1) + ") - " + str(elo_after_2) + " (▼ " + str(elo_after_2 - elo_deck2) + ")" 
     else: 
         message = deck_1 + outcome_2 + pointer + "<b> " + deck_2 + "</b>" + "\n" 
-        message = message + str(elo_after_1) + " (⯆ " + str(elo_after_1- elo_deck1) + ") - " + str(elo_after_2) + " (⯅ " + str(elo_after_2 - elo_deck2) + ")" 
+        message = message + str(elo_after_1) + " (▼ " + str(elo_after_1- elo_deck1) + ") - " + str(elo_after_2) + " (▲ " + str(elo_after_2 - elo_deck2) + ")" 
     return message
 telegram_send_message(telegram_duello_message("Slifer", "Insetti", 2, 20, 1000, 324, 303, True), bot_id, chat_id)
 #  ❌ - ✅ 

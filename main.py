@@ -14,6 +14,7 @@ import gspread
 from google.oauth2 import service_account
 import requests
 import seaborn as sns
+import matplotlib as mlp
 import matplotlib.pyplot as plt
 #from gsheetsdb import connect
 
@@ -40,7 +41,7 @@ st.set_page_config(
 # Code snippet to hide the menu and the "made with streamlit" banner
 hide_streamlit_style = """
             <style>
-            #MainMenu {visibility: hidden;}
+            #MainMenu {visibility: show;}
             footer {visibility: hidden;}
             </style>
             """
@@ -415,11 +416,17 @@ def get_min_elo(deck_matches):
 def ELO_plot(deck_matches):
     if len(deck_matches) == 0:
         return False
+    mlp.rcdefaults() 
     fig = plt.figure(figsize=(5, 4))
+    # sns.set(rc={'axes.facecolor':'#E8ECEC', 'figure.facecolor':'#E8ECEC'})
+    # plt.style.use("classic")
     plt.ylim(0.8*min(deck_matches["elo_after"]), 1.2*max(deck_matches["elo_after"]))
     plt.grid(False)
     titolo = "Andamento ELO - " + deck_matches.loc[0, 'deck_name']
-    sns.lineplot(x = range(1, len(deck_matches)+1), y = "elo_after", data=deck_matches).set(title=titolo)
+    sns.lineplot(
+        x = range(1, len(deck_matches)+1), 
+        y = "elo_after", 
+        data=deck_matches).set(title=titolo)
     plt.xlabel('Duelli')
     plt.ylabel('ELO')
     # max

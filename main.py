@@ -13,6 +13,8 @@ from gspread_pandas import Spread, Client
 import gspread 
 from google.oauth2 import service_account
 import requests
+import seaborn as sns
+import matplotlib.pyplot as plt
 #from gsheetsdb import connect
 
 
@@ -108,10 +110,10 @@ def telegram_duello_message(deck_1, deck_2, outcome, elo_deck1, elo_after_1, elo
     message = ""
     if outcome == "1":
         message = pointer + "<b> " + deck_1 + "</b>" + outcome_1 + deck_2 + "\n"
-        message = message + str(elo_after_1) + " (▲ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▼ " + str(elo_after_2 - elo_deck2) + ")" 
+        message = message + str(elo_after_1) + " (▲ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▼ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
     else: 
         message = deck_1 + outcome_2 + pointer + "<b> " + deck_2 + "</b>" + "\n" 
-        message = message + str(elo_after_1) + " (▼ " + str(round(elo_after_1- elo_deck1,1)) + ") - " + str(elo_after_2) + " (▲ " + str(elo_after_2 - elo_deck2) + ")" 
+        message = message + str(elo_after_1) + " (▼ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▲ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
     return message
 #  ❌ - ✅ 
 
@@ -383,6 +385,72 @@ matches, lista_mazzi, tournaments = download_data()
 
 
 
+######## PLOTTING SECTION ######################
+
+def get_deck_matches(matches, deck):
+    """ get a dataframe of the matches (with elo changes linked to them) for a single deck """
+    deck_matches = matches[matches['deck_name'] == deck].reset_index()
+    return deck_matches
+
+def get_max_elo(deck_matches):
+    if len(deck_matches) == 0:
+        return False
+    max_elo, index = 0, 0
+    for i, elo in enumerate(deck_matches["elo_after"]):
+        if elo > max_elo:
+            max_elo = elo
+            index = i
+    return index + 1, max_elo
+
+def get_min_elo(deck_matches):
+    if len(deck_matches) == 0:
+        return False
+    min_elo, index = 999999, 0
+    for i, elo in enumerate(deck_matches["elo_after"]):
+        if elo < min_elo:
+            min_elo = elo
+            index = i
+    return index + 1, min_elo
+
+def ELO_plot(deck_matches):
+    if len(deck_matches) == 0:
+        return False
+    fig = plt.figure(figsize=(5, 4))
+    plt.ylim(0.8*min(deck_matches["elo_after"]), 1.2*max(deck_matches["elo_after"]))
+    plt.grid(False)
+    titolo = "Andamento ELO - " + deck_matches.loc[0, 'deck_name']
+    sns.lineplot(x = range(1, len(deck_matches)+1), y = "elo_after", data=deck_matches).set(title=titolo)
+    plt.xlabel('Duelli')
+    plt.ylabel('ELO')
+    # max
+    index_max, elo_max = get_max_elo(deck_matches)
+    plt.scatter(x = index_max, y = elo_max, color = "green")
+    plt.annotate(str(elo_max), xy = (index_max-0.5, elo_max+50), color = "green")
+    # min
+    index_min, elo_min = get_min_elo(deck_matches)
+    plt.scatter(x = index_min, y = elo_min, color = "red")
+    plt.annotate(str(elo_min), xy = (index_min-0.5, elo_min-100), color = "red")
+    #
+    st.pyplot(fig)
+    return True
+
+#ELO_plot(get_deck_matches(matches,"Slifer"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### APP ########################
 
 st.markdown("# YGO ELO app")
@@ -395,6 +463,7 @@ pagina_selezionata = st.sidebar.radio("Menu:",
                          "Aggiungi un duello", 
                          "Classifiche",
                          "Confronta mazzi",
+                         "Statistiche mazzo 📈",
                          "Info"])
 
 
@@ -454,6 +523,25 @@ if pagina_selezionata == "Confronta mazzi":
         statistiche_duelli(deck_1, deck_2, matches)
         storico_duelli(deck_1, deck_2, matches)
 
+
+
+################################
+# PAGINA: "Statistiche mazzo 📈"
+if pagina_selezionata == "Statistiche mazzo 📈":
+
+    with st.form(key = 'statistiche_mazzo'):
+        st.subheader("Seleziona il mazzo di cui avere le statistiche")
+        st.write("Lasciare vuoto per avere i grafici per ogni mazzo")
+        deck_name = st.selectbox("Mazzo: ", lista_mazzi["deck_name"])
+        button_statistiche_mazzo = st.form_submit_button("Ottieni le statistiche")
+
+    if button_statistiche_mazzo:
+        if deck_name != "":
+            ELO_plot(get_deck_matches(matches, deck_name))
+        else: 
+            for deck in lista_mazzi["deck_name"]:
+                if deck != "":
+                    ELO_plot(get_deck_matches(matches, deck))
 
 
 ################################

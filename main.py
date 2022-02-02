@@ -106,14 +106,13 @@ def telegram_duello_message(deck_1, deck_2, outcome, elo_deck1, elo_after_1, elo
         pointer = "⯈"
 
     message = ""
-    if outcome == 1:
+    if outcome == "1":
         message = pointer + "<b> " + deck_1 + "</b>" + outcome_1 + deck_2 + "\n"
-        message = message + str(elo_after_1) + " (▲ " + str(elo_after_1- elo_deck1) + ") - " + str(elo_after_2) + " (▼ " + str(elo_after_2 - elo_deck2) + ")" 
+        message = message + str(elo_after_1) + " (▲ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▼ " + str(elo_after_2 - elo_deck2) + ")" 
     else: 
         message = deck_1 + outcome_2 + pointer + "<b> " + deck_2 + "</b>" + "\n" 
-        message = message + str(elo_after_1) + " (▼ " + str(elo_after_1- elo_deck1) + ") - " + str(elo_after_2) + " (▲ " + str(elo_after_2 - elo_deck2) + ")" 
+        message = message + str(elo_after_1) + " (▼ " + str(round(elo_after_1- elo_deck1,1)) + ") - " + str(elo_after_2) + " (▲ " + str(elo_after_2 - elo_deck2) + ")" 
     return message
-telegram_send_message(telegram_duello_message("Slifer", "Insetti", 2, 20, 1000, 324, 303, True), bot_id, chat_id)
 #  ❌ - ✅ 
 
 
@@ -348,12 +347,25 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi):
     # statistiche dei duelli tra i due deck
     statistiche_duelli(deck1, deck2, matches)
     storico_duelli(deck1, deck2, matches)
+    # # # # # # # # # # # # 
 
     # scheda con dettaglio dei duelli tra i due deck
 
     spread.df_to_sheet(matches, sheet = "matches", index = False)
 
     update_deck_elo(deck1, deck2, elo_after_1, elo_after_2, win_flag_1, win_flag_2, lista_mazzi)
+    
+
+
+    # Invio messaggio con duello eseguito:
+    telegram_send_message(
+        telegram_duello_message(
+            deck1, deck2, outcome, 
+            elo_deck1, elo_after_1, 
+            elo_deck2, elo_after_2, 
+            True), 
+        bot_id, chat_id)
+    # # # # # # # # # # # # 
 
     return True
 

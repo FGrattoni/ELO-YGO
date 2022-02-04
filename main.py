@@ -92,7 +92,7 @@ def update_the_spreadsheet(spreadsheetname, dataframe):
 
 
 
-#TELEGRAM
+##### TELEGRAM
 # Send message - guide: https://www.youtube.com/watch?v=M9IGRWFX_1w
 def telegram_send_message(message, bot_id, chat_id):
     url_req = "https://api.telegram.org/bot" + bot_id + "/sendMessage" + "?chat_id=" + chat_id + "&text=" + message + "&parse_mode=HTML"
@@ -235,51 +235,32 @@ def storico_duelli(deck1, deck2, matches):
 
 
 
-def stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali):
-    """ Statistiche delle percentuali di vittoria
-    funzione utilizzata nelle statistiche duelli, per rappresentare la percentuale di vittoria contro
-    l'altro mazzo con elementi st.metric """
-    delta_color_str = "normal"
-    if vittorie_1 == vittorie_2:
-        delta_color_str = "off"
-    elif vittorie_1 < vittorie_2:
-        delta_color_str = "inverse"
-    st.metric(
-        label = "% vittorie "+ deck1, 
-        value = str(round(vittorie_1/(duelli_totali) * 100, 0)) + " %", 
-        delta = str(vittorie_1) + " duelli vinti",
-        delta_color = delta_color_str)
+def get_deck_matches(matches, deck):
+    """ get a dataframe of the matches (with elo changes linked to them) for a single deck 
+    Add the opponent for each match and a few of his statistics. 
+    - - - - - - -
+    USED IN:
+     - plots functions
+     - statistics functions """
 
+    # # Extract deck data
+    deck_matches = matches[matches['deck_name'] == deck].reset_index()
 
-
-def statistiche_duelli(deck1, deck2, matches):
-    duelli_totali = 0
-    vittorie_1 = 0
-    vittorie_2 = 0
-
-    for index, row in matches.iterrows():
-        if matches.loc[index]["deck_pos"] == 1:
-            deck_name = matches.loc[index]["deck_name"]
-            if deck_name == deck1 or deck_name == deck2:
-                deck_name2 = matches.loc[index+1]["deck_name"]
-                if deck_name2 == deck1 or deck_name2 == deck2:
-                    duelli_totali +=1
-                    if matches.loc[index]["win_flag"] == 1 and deck_name == deck1:
-                        vittorie_1 += 1
-                    elif matches.loc[index]["win_flag"] == 1 and deck_name == deck2:
-                        vittorie_2 += 1
-                    elif matches.loc[index+1]["win_flag"] == 1 and deck_name2 == deck1:
-                        vittorie_1 += 1
-                    else:
-                        vittorie_2 += 1
+    # # Add opponent statistics
+    # add empty columns
+    deck_matches['opponent_name'] = range(0, len(deck_matches))
+    deck_matches['opponent_elo_before'] = range(0, len(deck_matches))
+    deck_matches['opponent_elo_after'] = range(0, len(deck_matches))
+    i = 0
+    for id_match in deck_matches['id_match']:
+        #opponent_row = matches[matches['id_match'] == id_match and matches['deck_name'] != deck]
+        opponent_row = matches.query('id_match == @id_match and deck_name != @deck').reset_index()
+        deck_matches['opponent_name'].iloc[i]       = opponent_row['deck_name'].iloc[0]
+        deck_matches['opponent_elo_before'].iloc[i] = opponent_row['elo_before'].iloc[0]
+        deck_matches['opponent_elo_after'].iloc[i]  = opponent_row['elo_after'].iloc[0]
+        i += 1
     
-    st.subheader("Statistiche dei duelli tra " + deck1 + " e " + deck2)
-    st.write("Numero totale di duelli: " +  str(duelli_totali))
-    if duelli_totali > 0:
-        stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali)
-        stat_perc_vittorie(deck2, vittorie_2, vittorie_1, duelli_totali)
-
-    return True
+    return deck_matches
 
 
 
@@ -389,11 +370,6 @@ matches, lista_mazzi, tournaments = download_data()
 
 ######## PLOTTING SECTION ######################
 
-def get_deck_matches(matches, deck):
-    """ get a dataframe of the matches (with elo changes linked to them) for a single deck """
-    deck_matches = matches[matches['deck_name'] == deck].reset_index()
-    return deck_matches
-
 def get_max_elo(deck_matches):
     if len(deck_matches) == 0:
         return False
@@ -404,6 +380,8 @@ def get_max_elo(deck_matches):
             index = i
     return index + 1, max_elo
 
+
+
 def get_min_elo(deck_matches):
     if len(deck_matches) == 0:
         return False
@@ -413,6 +391,8 @@ def get_min_elo(deck_matches):
             min_elo = elo
             index = i
     return index + 1, min_elo
+
+
 
 def ELO_plot(deck_matches):
     if len(deck_matches) == 0:
@@ -442,7 +422,7 @@ def ELO_plot(deck_matches):
     st.pyplot(fig)
     return True
 
-#ELO_plot(get_deck_matches(matches,"Slifer"))
+
 
 def ELO_plot_altair(deck_matches):
     if len(deck_matches) == 0:
@@ -469,6 +449,80 @@ def ELO_plot_altair(deck_matches):
 
     return True
 
+
+
+######## STATISTICHE SECTION ######################
+
+def stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali):
+    """ Statistiche delle percentuali di vittoria
+    funzione utilizzata nelle statistiche duelli, per rappresentare la percentuale di vittoria contro
+    l'altro mazzo con elementi st.metric """
+    delta_color_str = "normal"
+    if vittorie_1 == vittorie_2:
+        delta_color_str = "off"
+    elif vittorie_1 < vittorie_2:
+        delta_color_str = "inverse"
+    st.metric(
+        label = "% vittorie "+ deck1, 
+        value = str(round(vittorie_1/(duelli_totali) * 100, 0)) + " %", 
+        delta = str(vittorie_1) + " duelli vinti",
+        delta_color = delta_color_str)
+
+
+
+def statistiche_duelli(deck1, deck2, matches):
+    duelli_totali = 0
+    vittorie_1 = 0
+    vittorie_2 = 0
+
+    for index, row in matches.iterrows():
+        if matches.loc[index]["deck_pos"] == 1:
+            deck_name = matches.loc[index]["deck_name"]
+            if deck_name == deck1 or deck_name == deck2:
+                deck_name2 = matches.loc[index+1]["deck_name"]
+                if deck_name2 == deck1 or deck_name2 == deck2:
+                    duelli_totali +=1
+                    if matches.loc[index]["win_flag"] == 1 and deck_name == deck1:
+                        vittorie_1 += 1
+                    elif matches.loc[index]["win_flag"] == 1 and deck_name == deck2:
+                        vittorie_2 += 1
+                    elif matches.loc[index+1]["win_flag"] == 1 and deck_name2 == deck1:
+                        vittorie_1 += 1
+                    else:
+                        vittorie_2 += 1
+    
+    st.subheader("Statistiche dei duelli tra " + deck1 + " e " + deck2)
+    st.write("Numero totale di duelli: " +  str(duelli_totali))
+    if duelli_totali > 0:
+        stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali)
+        stat_perc_vittorie(deck2, vittorie_2, vittorie_1, duelli_totali)
+
+    return True
+
+
+
+def statistiche_mazzo(deck_name, deck_matches, mazzi = lista_mazzi):
+    """ Funzione che ritorna a schermo le statistiche del mazzo """
+    ELO_mazzo = get_deck_elo(deck_name, mazzi)
+    numero_duelli = len(deck_matches)
+    if numero_duelli == 0:
+        st.markdown(
+            f"Punteggio attuale mazzo: {ELO_mazzo}  \n"
+            f"Numero di duelli: **{numero_duelli}**"
+        )
+        return True
+    
+    numero_vittorie = sum(deck_matches['win_flag'])
+    percentuale_vittorie = int(round(numero_vittorie/numero_duelli*100, 0))
+    semaforo_percentuale = "🟢" if percentuale_vittorie>=70 else ("🟡" if percentuale_vittorie>=30  else "🔴")
+
+    st.markdown(
+        f"Punteggio attuale mazzo: **{ELO_mazzo}**  \n"
+        f"Numero di duelli: **{numero_duelli}**  \n"
+        f"Percentuale di vittorie: **{percentuale_vittorie} %** - {semaforo_percentuale}"
+    )
+    
+    return True 
 
 
 
@@ -566,11 +620,16 @@ if pagina_selezionata == "Statistiche mazzo 📈":
     if button_statistiche_mazzo:
         if deck_name != "":
             ELO_plot(get_deck_matches(matches, deck_name))
+            statistiche_mazzo(deck_name, get_deck_matches(matches, deck_name))
         else: 
             for deck in lista_mazzi["deck_name"]:
                 if deck != "":
                     ELO_plot(get_deck_matches(matches, deck))
-                    ELO_plot_altair(get_deck_matches(matches, deck))
+                    expander_stats = st.expander(f"Statistiche del deck *{deck}* 👉")
+                    with expander_stats:
+                        statistiche_mazzo(deck, get_deck_matches(matches, deck))
+                    st.markdown("---")
+                    
 
 
 ################################

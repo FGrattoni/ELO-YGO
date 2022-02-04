@@ -16,6 +16,7 @@ import requests
 import seaborn as sns
 import matplotlib as mlp
 import matplotlib.pyplot as plt
+import altair as alt
 #from gsheetsdb import connect
 
 
@@ -443,10 +444,30 @@ def ELO_plot(deck_matches):
 
 #ELO_plot(get_deck_matches(matches,"Slifer"))
 
+def ELO_plot_altair(deck_matches):
+    if len(deck_matches) == 0:
+        return False
 
+    deck_matches['x'] = range(1, len(deck_matches) + 1)
+    elo_chart = alt.Chart(deck_matches).mark_trail().encode(
+        x=alt.X('x',
+            title = 'Duelli'),
+        y=alt.Y('elo_after',
+            scale=alt.Scale(
+                domain=(
+                    0.8*min(deck_matches["elo_after"]), 
+                    1.2*max(deck_matches["elo_after"]) ) ),
+            title = 'ELO'),
+        size=alt.Size('elo_after', legend=None)
+    ).properties(
+    title = "Andamento ELO - " + deck_matches.loc[0, 'deck_name']
+    ).configure_axis( 
+        grid=False
+    ).interactive()
 
+    st.altair_chart(elo_chart, use_container_width=True)
 
-
+    return True
 
 
 
@@ -549,6 +570,7 @@ if pagina_selezionata == "Statistiche mazzo 📈":
             for deck in lista_mazzi["deck_name"]:
                 if deck != "":
                     ELO_plot(get_deck_matches(matches, deck))
+                    ELO_plot_altair(get_deck_matches(matches, deck))
 
 
 ################################

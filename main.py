@@ -17,6 +17,8 @@ import seaborn as sns
 import matplotlib as mlp
 import matplotlib.pyplot as plt
 import altair as alt
+from lxml import html
+import json
 #from gsheetsdb import connect
 
 
@@ -356,6 +358,27 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi):
 
 
 
+def get_image_from_api(card_name, language = "it"):
+    """ prints the image of the card, downloading it from the API
+        API guide: https://db.ygoprodeck.com/api-guide/
+    requires: card_name (correct and complete name of the card)
+    additional param: language ("it", "en" ... )"""
+    parameters = {
+    "name": card_name,
+    "language": language
+    }
+    api_response = requests.get("https://db.ygoprodeck.com/api/v7/cardinfo.php", params=parameters)
+    st.markdown("## " + card_name)
+    if api_response.status_code == 200:
+        data = api_response.json()
+        id_card = data["data"][0]["id"]
+
+        st.image("https://storage.googleapis.com/ygoprodeck.com/pics_small/" + str(id_card) +".jpg")
+
+    return True
+
+
+
 # DOWNLOAD THE DATA
 def download_data():
     matches = load_the_spreadsheet("matches")
@@ -546,7 +569,8 @@ pagina_selezionata = st.sidebar.radio("Menu:",
                          "Classifiche",
                          "Confronta mazzi",
                          "Statistiche mazzo 📈",
-                         "Info"])
+                         "Info",
+                         "Cardmarket"])
 
 
 
@@ -653,3 +677,97 @@ if pagina_selezionata == "Info":
 
     prova_colored_markdown = '<p style="color:Red;"> ▼ Testo </p>'
     st.markdown(prova_colored_markdown, unsafe_allow_html=True)
+
+
+
+
+
+
+
+################################
+# PAGINA: "Cardmarket"
+if pagina_selezionata == "Cardmarket":
+
+    with st.form(key = 'cardmarket_seller_carte'):
+        st.subheader("Seleziona venditori")
+
+        Extimate_Cards = st.checkbox("Extimate-cards")
+        Jinzo81 = st.checkbox("Jinzo81")
+        Jlter94 = st.checkbox("Jolter94")
+        KalosGames = st.checkbox("KalosGames")
+        TCGEmpire = st.checkbox("TCGEmpire")
+        Zuzu_fantasia = st.checkbox("Zuzu-Fantasia")
+        CardsMania = st.checkbox('CardsMania')
+        Goatinho = st.checkbox("goatinho")
+        ChronikTM = st.checkbox("ChronikTM")
+        Galactus_roma = st.checkbox("galactus-roma")
+        Lop_vi = st.checkbox("lop-vi")
+
+        carta_input = st.text_input("Carta da cercare:")
+
+        button_cardmarket = st.form_submit_button("Ottieni prezzi di vendita")
+
+    if button_cardmarket:
+        lista_seller = []
+        if Extimate_Cards:
+            lista_seller.append("Extimate-cards")
+        if Jinzo81:
+            lista_seller.append("Jinzo81")
+        if Jlter94:
+            lista_seller.append("Jolter94")
+        if KalosGames:
+            lista_seller.append("KalosGames")
+        if TCGEmpire:
+            lista_seller.append("TCGEmpire")
+        if Zuzu_fantasia:
+            lista_seller.append("Zuzu-Fantasia")
+        if CardsMania:
+            lista_seller.append('CardsMania')
+        if Goatinho:
+            lista_seller.append("goatinho")
+        if ChronikTM:
+            lista_seller.append("ChronikTM")
+        if Galactus_roma:
+            lista_seller.append("galactus-roma")
+        if Lop_vi:
+            lista_seller.append("lop-vi")
+
+        carta = carta_input.replace(' ', '+')
+
+        with st.spinner('Recuperando i prezzi da CardMarket...'):
+
+            # Print card name and image
+            get_image_from_api(carta_input)
+
+            for index, venditore in enumerate(lista_seller):
+                url = "https://www.cardmarket.com/it/YuGiOh/Users/" + venditore + '/Offers/Singles?name=' + carta
+                page = requests.get(url)
+                content = html.fromstring(page.content)
+                prezzo_minore = 99999
+                nome_carta = ""
+                for i in range(1,21):
+                    xpath = "/html/body/main/section/div[3]/div[2]/div[" + str(i) + "]/div[5]/div[1]/div/div/span"
+                    xpath_nome = "/html/body/main/section/div[3]/div[2]/div[" + str(i) + "]/div[4]/div/div[1]/a"
+                    xpath_condizione = "/html/body/main/section/div[3]/div[2]/div[" + str(i) + "]/div[4]/div/div[2]/div/div[1]/a[2]/span"
+                    xpath_disponibilita = "/html/body/main/section/div[3]/div[2]/div[" + str(i) + "]/div[5]/div[2]/span"
+                    try:
+                        prezzo_str = content.xpath(xpath)
+                        prezzo_str = prezzo_str[0].text[:-2]
+                        prezzo = float(prezzo_str.replace(',','.'))
+                        if prezzo < prezzo_minore: 
+                            nome_riga = content.xpath(xpath_nome)[0].text
+                            if nome_carta == "":
+                                nome_carta = nome_riga
+                                prezzo_minore = prezzo
+                                condizione_carta = content.xpath(xpath_condizione)[0].text
+                                disponibilita = content.xpath(xpath_disponibilita)[0].text
+                            elif nome_riga == nome_carta:
+                                prezzo_minore = prezzo
+                                condizione_carta = content.xpath(xpath_condizione)[0].text
+                                disponibilita = content.xpath(xpath_disponibilita)[0].text
+                    except:
+                        continue
+                if prezzo_minore != 99999:
+                    st.markdown(f'{venditore}: **{prezzo_minore}** € - *{nome_carta}* - {condizione_carta} - {disponibilita} - 🌍 [link]({url})')
+                else:
+                    st.write(f"{venditore}: -")

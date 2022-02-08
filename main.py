@@ -7,7 +7,7 @@
 #from pyarrow import ListValue
 from unittest import result
 from PIL.Image import TRANSPOSE
-from black import out
+# from black import out
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 import altair as alt
 from lxml import html
 import json
+import itertools
 #from gsheetsdb import connect
 
 
@@ -476,6 +477,54 @@ def ELO_plot_altair(deck_matches):
 
 
 
+def ELO_plot_multiple_altair(deck_list, matches):
+    """ function that plots the ELO trend for multiple decks in the same plot
+    input: 
+        deck_list: a list of names of decks
+        matches: list of matches """
+    list_of_deck_matches = []
+    data = pd.DataFrame(columns=["deck_name", "elo_after", "index"])
+    for i, deck_name in enumerate(deck_list):
+        list_of_deck_matches.append(get_deck_matches(matches, deck_name))
+        duelli_mazzo = get_deck_matches(matches, deck_name)[["deck_name", "elo_after"]]
+        duelli_mazzo["index"] = duelli_mazzo.index
+        duelli_mazzo=duelli_mazzo.reset_index()
+        duelli_mazzo = duelli_mazzo.drop('level_0', axis=1)
+        data = pd.concat([data, duelli_mazzo], sort=False)
+    
+    multiple_chart = alt.Chart(
+        data = data,
+        height = 1000
+        ).mark_line().encode(
+        x = alt.X(
+            'index',
+            title = "Duelli"),
+        y = alt.Y(
+            'elo_after',
+            title = "ELO",
+            scale=alt.Scale(
+                domain=(
+                    0.8*min(data["elo_after"]), 
+                    1.2*max(data["elo_after"]) ) ), ),
+        color = alt.Color(
+            'deck_name', 
+            legend = alt.Legend(
+                title = "Deck",
+                orient = 'bottom',
+                columns= 3)),
+        strokeDash='deck_name',
+    )
+    
+    st.altair_chart(multiple_chart, use_container_width=True)
+        
+    return True
+### DEBUG utils
+# ELO_plot_multiple_altair(lista_mazzi["deck_name"], matches)
+# ELO_plot_multiple_altair(["Slifer", "Alieno", "Eroi Mascherati", "Zombie"], matches)
+# ELO_plot_altair(get_deck_matches(matches, "Slifer"))
+
+
+
 ######## STATISTICHE SECTION ######################
 
 def stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali):
@@ -571,7 +620,7 @@ pagina_selezionata = st.sidebar.radio("Menu:",
                          "Classifiche",
                          "Confronta mazzi",
                          "Statistiche mazzo 📈",
-                         "Info",
+                         "Info ELO",
                          "Cardmarket"])
 
 
@@ -639,18 +688,27 @@ if pagina_selezionata == "Statistiche mazzo 📈":
 
     with st.form(key = 'statistiche_mazzo'):
         st.subheader("Seleziona il mazzo di cui avere le statistiche")
-        st.write("Lasciare vuoto per avere i grafici per ogni mazzo")
+        st.write("Lasciare vuoto per avere statistiche per ogni mazzo")
         deck_list = st.multiselect("Mazzo: ", lista_mazzi["deck_name"])
         button_statistiche_mazzo = st.form_submit_button("Ottieni le statistiche")
 
     if button_statistiche_mazzo:
-        if deck_list[0] != "":
+        if len(deck_list) != 0:
+            if len(deck_list) > 1:
+                # grafico con andamento ELO di più deck
+                ELO_plot_multiple_altair(deck_list, matches)
+                # Statistiche duelli a coppie di deck 
+                coppie_deck = list(itertools.combinations(deck_list, 2))
+                # for coppia in coppie_deck:
+                #     with st.expander(coppia[0] + " 💥 " + coppia[1]):
+                #         statistiche_duelli(coppia[0], coppia[1], matches)
             for deck_name in deck_list:
                 st.markdown("## *" + deck_name + "*")
                 ELO_plot(get_deck_matches(matches, deck_name))
                 statistiche_mazzo(deck_name, get_deck_matches(matches, deck_name))
                 st.markdown("---")
-        else: 
+        else:
+            ELO_plot_multiple_altair(lista_mazzi["deck_name"], matches)
             for deck in lista_mazzi["deck_name"]:
                 if deck != "":
                     ELO_plot(get_deck_matches(matches, deck))
@@ -662,8 +720,8 @@ if pagina_selezionata == "Statistiche mazzo 📈":
 
 
 ################################
-# PAGINA: "Info"
-if pagina_selezionata == "Info":
+# PAGINA: "Info ELO"
+if pagina_selezionata == "Info ELO":
 
     matches, lista_mazzi, tournaments = download_data()
 
@@ -676,12 +734,6 @@ if pagina_selezionata == "Info":
     Duelli = st.expander("Duelli 👉")
     with Duelli:
         st.write(matches)
-
-    prova_colored_markdown = '<p style="color:Green;"> ▲ Testo </p>'
-    st.markdown(prova_colored_markdown, unsafe_allow_html=True)
-
-    prova_colored_markdown = '<p style="color:Red;"> ▼ Testo </p>'
-    st.markdown(prova_colored_markdown, unsafe_allow_html=True)
 
 
 

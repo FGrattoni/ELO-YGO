@@ -5,7 +5,9 @@
 #from numpy import concatenate
 #from pandas.core.frame import DataFrame
 #from pyarrow import ListValue
+from unittest import result
 from PIL.Image import TRANSPOSE
+from black import out
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -638,13 +640,16 @@ if pagina_selezionata == "Statistiche mazzo 📈":
     with st.form(key = 'statistiche_mazzo'):
         st.subheader("Seleziona il mazzo di cui avere le statistiche")
         st.write("Lasciare vuoto per avere i grafici per ogni mazzo")
-        deck_name = st.selectbox("Mazzo: ", lista_mazzi["deck_name"])
+        deck_list = st.multiselect("Mazzo: ", lista_mazzi["deck_name"])
         button_statistiche_mazzo = st.form_submit_button("Ottieni le statistiche")
 
     if button_statistiche_mazzo:
-        if deck_name != "":
-            ELO_plot(get_deck_matches(matches, deck_name))
-            statistiche_mazzo(deck_name, get_deck_matches(matches, deck_name))
+        if deck_list[0] != "":
+            for deck_name in deck_list:
+                st.markdown("## *" + deck_name + "*")
+                ELO_plot(get_deck_matches(matches, deck_name))
+                statistiche_mazzo(deck_name, get_deck_matches(matches, deck_name))
+                st.markdown("---")
         else: 
             for deck in lista_mazzi["deck_name"]:
                 if deck != "":
@@ -750,6 +755,7 @@ if pagina_selezionata == "Cardmarket":
                     xpath_nome = "/html/body/main/section/div[3]/div[2]/div[" + str(i) + "]/div[4]/div/div[1]/a"
                     xpath_condizione = "/html/body/main/section/div[3]/div[2]/div[" + str(i) + "]/div[4]/div/div[2]/div/div[1]/a[2]/span"
                     xpath_disponibilita = "/html/body/main/section/div[3]/div[2]/div[" + str(i) + "]/div[5]/div[2]/span"
+                    
                     try:
                         prezzo_str = content.xpath(xpath)
                         prezzo_str = prezzo_str[0].text[:-2]
@@ -768,6 +774,12 @@ if pagina_selezionata == "Cardmarket":
                     except:
                         continue
                 if prezzo_minore != 99999:
-                    st.markdown(f'{venditore}: **{prezzo_minore}** € - *{nome_carta}* - {condizione_carta} - {disponibilita} - 🌍 [link]({url})')
+                    if condizione_carta in ("PO", "PL"): condizione_carta = '<font color=Red>'    + condizione_carta + '</font>'
+                    if condizione_carta in ("LP", "GD"): condizione_carta = '<font color=Orange>' + condizione_carta + '</font>'
+                    if condizione_carta in ("EX", "NM", "MT"): condizione_carta = '<font color=Green>' + condizione_carta + '</font>'
+                    output = f'{venditore}: **{prezzo_minore}** € - '
+                    output = output + f'*{nome_carta}* - {condizione_carta} - '
+                    output = output + f'qta: {disponibilita} - 🌍 [link]({url})'
+                    st.markdown(output, unsafe_allow_html=True)
                 else:
                     st.write(f"{venditore}: -")

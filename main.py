@@ -616,20 +616,30 @@ st.sidebar.write( "[🔗 Link to Google Sheets](" + spread.url + ")" )
 ## Indice:
 pagina_selezionata = st.sidebar.radio("Menu:", 
                      options = [
-                         "Aggiungi un duello", 
-                         "Classifiche",
-                         "Confronta mazzi",
-                         "Statistiche mazzo 📈",
-                         "Info ELO",
-                         "Cardmarket"])
+                         "➕ Aggiungi un duello", 
+                         "🏆 Classifiche",
+                         "🔍 Confronta mazzi",
+                         "📈 Statistiche mazzo",
+                         "📝 Info ELO",
+                         "🛒 Cardmarket"])
 
 
 
 
 ################################
-# PAGINA: "Aggiungi un duello"
+# PAGINA: "Debug"
+if st.secrets["debug"]['debug_offline'] == "True":
+    with st.expander("matches"):
+        st.dataframe(matches)
+    
+    with st.expander("lista_mazzi"):
+        st.dataframe(lista_mazzi[1:])
+    
 
-if pagina_selezionata == "Aggiungi un duello":
+
+################################
+# PAGINA: "Aggiungi un duello"
+if pagina_selezionata == "➕ Aggiungi un duello":
 
     with st.form(key = 'insert_match'):
         c1, c2  = st.columns((1, 1))
@@ -650,22 +660,33 @@ if pagina_selezionata == "Aggiungi un duello":
         if outcome == True:
             st.success("Duello inserito correttamente a sistema")
 
+
+
 ################################
 # PAGINA: "Classifiche"
-if pagina_selezionata == "Classifiche":
+if pagina_selezionata == "🏆 Classifiche":
 
-    classifica = lista_mazzi.copy()
+    st.markdown("## 🏆 Classifica deck")
+    classifica = lista_mazzi[1:].copy()
     classifica = classifica.astype({"elo": int})
-    #classifica['percentage'] = classifica['percentage'].apply(lambda x: round(x * 100, 1) ).astype('string') + " %"
     classifica.columns = ["# Cat.", "Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note"]
-    classifica.style.bar()
-    st.write(classifica[["Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note"]])
-
+    classifica.sort_values(by = ['Elo'], inplace=True, ascending=False)
+    classifica = classifica.reset_index()
+    output = ""
+    posizione = 1
+    for deck in classifica["Nome deck"]:
+        if posizione == 1: output = output + "🥇 "
+        if posizione == 2: output = output + "🥈 "
+        if posizione == 3: output = output + "🥉 "
+        if posizione == len(classifica): output = output + "🥄 "
+        output = output + f"**{posizione}** - {deck} - {classifica['Elo'][posizione-1]}  \n"
+        posizione += 1
+    st.markdown(output)
 
 
 ################################
-# PAGINA: "Confronta Mazzi"
-if pagina_selezionata == "Confronta mazzi":
+# PAGINA: "🔍 Confronta Mazzi"
+if pagina_selezionata == "🔍 Confronta mazzi":
 
     with st.form(key = 'confronta_mazzi'):
         st.subheader("Seleziona due mazzi da confrontare")
@@ -683,8 +704,8 @@ if pagina_selezionata == "Confronta mazzi":
 
 
 ################################
-# PAGINA: "Statistiche mazzo 📈"
-if pagina_selezionata == "Statistiche mazzo 📈":
+# PAGINA: "📈 Statistiche mazzo"
+if pagina_selezionata == "📈 Statistiche mazzo":
 
     with st.form(key = 'statistiche_mazzo'):
         st.subheader("Seleziona il mazzo di cui avere le statistiche")
@@ -721,7 +742,7 @@ if pagina_selezionata == "Statistiche mazzo 📈":
 
 ################################
 # PAGINA: "Info ELO"
-if pagina_selezionata == "Info ELO":
+if pagina_selezionata == "📝 Info ELO":
 
     st.markdown("## ELO-system")
     st.markdown("Fonte: 🌍 [link](https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/)")
@@ -753,11 +774,9 @@ if pagina_selezionata == "Info ELO":
 
 
 
-
-
 ################################
 # PAGINA: "Cardmarket"
-if pagina_selezionata == "Cardmarket":
+if pagina_selezionata == "🛒 Cardmarket":
 
     with st.form(key = 'cardmarket_seller_carte'):
         st.subheader("Seleziona venditori")
@@ -849,3 +868,6 @@ if pagina_selezionata == "Cardmarket":
                     st.markdown(output, unsafe_allow_html=True)
                 else:
                     st.write(f"{venditore}: -")
+
+
+

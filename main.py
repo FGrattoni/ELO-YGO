@@ -377,7 +377,7 @@ def get_image_from_api(card_name, language = "it"):
         data = api_response.json()
         id_card = data["data"][0]["id"]
 
-        st.image("https://storage.googleapis.com/ygoprodeck.com/pics_small/" + str(id_card) +".jpg")
+        st.image("https://storage.googleapis.com/ygoprodeck.com/pics/" + str(id_card) +".jpg")
 
     return True
 
@@ -512,7 +512,7 @@ def ELO_plot_multiple_altair(deck_list, matches):
             legend = alt.Legend(
                 title = "Deck",
                 orient = 'bottom',
-                columns= 3)),
+                columns= 2)),
         strokeDash='deck_name',
     )
     
@@ -601,6 +601,9 @@ def statistiche_mazzo(deck_name, deck_matches, mazzi = lista_mazzi):
 
 
 
+def get_deck_rank(deck_name, ):
+    return True
+
 
 
 
@@ -687,7 +690,7 @@ if pagina_selezionata == "➕ Aggiungi un duello":
         outcome = insert_match2(matches, deck_1, deck_2, outcome, tournament, lista_mazzi)
         if outcome == True:
             st.success("Duello inserito correttamente a sistema")
-            
+
 
 
 ################################
@@ -820,6 +823,8 @@ if pagina_selezionata == "🛒 Cardmarket":
         ChronikTM = st.checkbox("ChronikTM")
         Galactus_roma = st.checkbox("galactus-roma")
         Lop_vi = st.checkbox("lop-vi")
+        Fbgame = st.checkbox("Fbgame")
+        Blastercards = st.checkbox("Blastercards")
 
         carta_input = st.text_input("Carta da cercare:")
 
@@ -849,6 +854,10 @@ if pagina_selezionata == "🛒 Cardmarket":
             lista_seller.append("galactus-roma")
         if Lop_vi:
             lista_seller.append("lop-vi")
+        if Fbgame:
+            lista_seller.append("Fbgame")
+        if Blastercards:
+            lista_seller.append("Blastercards")
 
         carta = carta_input.replace(' ', '+')
 

@@ -23,6 +23,7 @@ from lxml import html
 import json
 import itertools
 import random
+import cardmarket
 #from gsheetsdb import connect
 
 
@@ -638,6 +639,9 @@ if st.secrets["debug"]['debug_offline'] == "True":
     
     with st.expander("lista_mazzi"):
         st.dataframe(lista_mazzi[1:])
+
+    with st.expander("lista_seller"):
+        st.dataframe(load_the_spreadsheet("CardMarket_seller"))
     
 
 
@@ -809,24 +813,20 @@ if pagina_selezionata == "📝 Info ELO":
 # PAGINA: "Cardmarket"
 if pagina_selezionata == "🛒 Cardmarket":
 
+    lista_seller = load_the_spreadsheet("CardMarket_seller")
+
+    if 'seller_selezionati' in locals():
+        st.write(seller_selezionati)
+    else:
+        seller_selezionati = [0] * len(lista_seller)
+
     with st.form(key = 'cardmarket_seller_carte'):
         st.subheader("Seleziona venditori")
 
-        Extimate_Cards = st.checkbox("Extimate-cards")
-        Jinzo81 = st.checkbox("Jinzo81")
-        Jlter94 = st.checkbox("Jolter94")
-        KalosGames = st.checkbox("KalosGames")
-        TCGEmpire = st.checkbox("TCGEmpire")
-        Zuzu_fantasia = st.checkbox("Zuzu-Fantasia")
-        CardsMania = st.checkbox('CardsMania')
-        Goatinho = st.checkbox("goatinho")
-        ChronikTM = st.checkbox("ChronikTM")
-        Galactus_roma = st.checkbox("galactus-roma")
-        Lop_vi = st.checkbox("lop-vi")
-        Fbgame = st.checkbox("Fbgame")
-        Blastercards = st.checkbox("Blastercards")
+        for index, seller in enumerate(lista_seller["Seller"]):
+            seller_selezionati[index] = st.checkbox(seller)
 
-        carta_input = st.text_input("Carta da cercare:")
+        carta_input = st.text_input("Carta da cercare (inserire più carte separate da virgola per cercare più carte contemporaneamente):")
 
         button_cardmarket = st.form_submit_button("Ottieni prezzi di vendita")
 

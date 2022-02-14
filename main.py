@@ -211,6 +211,7 @@ def duello_vinto_format(row):
 
 
 def storico_duelli(deck1, deck2, matches):
+    """ DEPRECATED"""
     matches_horizontal = pd.DataFrame(columns=["Data", "Deck 1", "Deck 2", "Risultato", "Elo deck 1", "Elo deck 2"])
     for index, row in matches.iterrows():
         if matches.loc[index]["deck_pos"] == 1:
@@ -241,6 +242,65 @@ def storico_duelli(deck1, deck2, matches):
 
 
 
+def filter_matches(matches, deck_1 = "", deck_2 = "", date = []):
+    """ Funzione che filtra l alista dei duelli disputati (matches)
+    OPTIONS: 
+        - filtrare per singolo deck
+        - filtrare per coppia di deck per avere duelli esclusivamente tra i due deck
+        - filtrare per data
+    INPUT: 
+        - matches: lista dei match. la funzione lo filtra, 
+                    ma l'input può essere preventivamente filtrato 
+        - deck_1: nome del deck come in lista_mazzi. Default = ""
+        - deck_2: nome del deck come in lista_mazzi. Default = ""
+        - date: stringa di data della stessa forma del dataset matches. Default: ""
+    """
+    if date != []:
+            matches = matches[matches["date"].isin(date)]
+        
+    if deck_1 != "":
+        id_match_list = []
+        for index, row in matches.iterrows():
+            if row["deck_name"] == deck_1:
+                id_match_list.append(row["id_match"])
+        matches = matches[matches["id_match"].isin(id_match_list)]
+    if deck_2 != "":
+        id_match_list = []
+        for index, row in matches.iterrows():
+            if row["deck_name"] == deck_2:
+                id_match_list.append(row["id_match"])
+        matches = matches[matches["id_match"].isin(id_match_list)]
+
+    return matches
+
+
+
+def print_duelli(matches):
+    """ funzione che scrive a video lista dei duelli disputati:
+    """
+    output = ""
+
+    for index, row in matches.iterrows():
+        if matches.loc[index]["deck_pos"] == 1:
+            deck_name1 = matches.loc[index]["deck_name"]
+            id_match = row["id_match"]
+            win_flag_1 = row["win_flag"]
+            deck_name2 = matches[(matches["id_match"] == id_match) & (matches["deck_pos"] == 2)].reset_index()
+            deck_name2 = deck_name2.loc[0]["deck_name"]
+            if win_flag_1 == 1: 
+                output = output + '<font color=#00CC00>' + deck_name1 + '</font>'
+                output = output + " - "
+                output = output + '<font color=Red>' + deck_name2 + '</font>  \n'
+            else:
+                output = output + '<font color=Red>' + deck_name1 + '</font>'
+                output = output + " - "
+                output = output + '<font color=#00CC00>' + deck_name2 + '</font>  \n'
+
+    st.markdown(output, unsafe_allow_html = True)
+    return True
+
+
+
 def get_deck_matches(matches, deck):
     """ get a dataframe of the matches (with elo changes linked to them) for a single deck 
     Add the opponent for each match and a few of his statistics. 
@@ -250,7 +310,8 @@ def get_deck_matches(matches, deck):
      - statistics functions """
 
     # # Extract deck data
-    deck_matches = matches[matches['deck_name'] == deck].reset_index()
+    matches_copy = matches.copy()
+    deck_matches = matches_copy[matches_copy['deck_name'] == deck].reset_index()
 
     # # Add opponent statistics
     # add empty columns
@@ -260,7 +321,7 @@ def get_deck_matches(matches, deck):
     i = 0
     for id_match in deck_matches['id_match']:
         #opponent_row = matches[matches['id_match'] == id_match and matches['deck_name'] != deck]
-        opponent_row = matches.query('id_match == @id_match and deck_name != @deck').reset_index()
+        opponent_row = matches_copy.query('id_match == @id_match and deck_name != @deck').reset_index()
         deck_matches['opponent_name'].iloc[i]       = opponent_row['deck_name'].iloc[0]
         deck_matches['opponent_elo_before'].iloc[i] = opponent_row['elo_before'].iloc[0]
         deck_matches['opponent_elo_after'].iloc[i]  = opponent_row['elo_after'].iloc[0]
@@ -337,7 +398,8 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi):
 
     # statistiche dei duelli tra i due deck
     statistiche_duelli(deck1, deck2, matches)
-    storico_duelli(deck1, deck2, matches)
+    # storico_duelli(deck1, deck2, matches)
+    print_duelli(filter_matches(matches, deck1, deck2))
     # # # # # # # # # # # # 
 
     # scheda con dettaglio dei duelli tra i due deck
@@ -623,6 +685,7 @@ pagina_selezionata = st.sidebar.radio("Menu:",
                          "➕ Aggiungi un duello", 
                          "🏆 Classifiche",
                          "🔍 Confronta mazzi",
+                         "✨ Highlights serata",
                          "📈 Statistiche mazzo",
                          "📝 Info ELO",
                          "🛒 Cardmarket"])
@@ -631,7 +694,7 @@ pagina_selezionata = st.sidebar.radio("Menu:",
 
 
 ################################
-# PAGINA: "Debug"
+# SEZIONE: "Debug"
 if st.secrets["debug"]['debug_offline'] == "True":
     with st.expander("matches"):
         st.dataframe(matches)
@@ -731,6 +794,43 @@ if pagina_selezionata == "🔍 Confronta mazzi":
     if button_confronta_mazzi:
         statistiche_duelli(deck_1, deck_2, matches)
         storico_duelli(deck_1, deck_2, matches)
+
+
+
+################################
+# PAGINA: "✨ Highlights serata"
+if pagina_selezionata == "✨ Highlights serata":
+    st.markdown("## Highlights della serata✨")
+    
+    with st.form(key = 'highlights serata'):
+        lista_date = matches["date"].drop_duplicates()[::-1]     
+        data_selezionata = st.multiselect("Seleziona data:", options=lista_date)
+        button_highlights = st.form_submit_button("Highlights ✨")
+
+    if button_highlights:
+        matches_serata = filter_matches(matches, date = data_selezionata)
+        if data_selezionata==[]:
+            st.warning("Selezionare almeno un giorno per avere informazioni su una singola serata.")
+
+        ## Mazzo con + duelli
+        maz_matches = 0
+        matches_per_deck = pd.DataFrame(columns=["deck_name", "numero_duelli"])
+        for deck in matches_serata["deck_name"].drop_duplicates():
+            matches_single_deck = [deck, len(get_deck_matches(matches_serata, deck))]
+            matches_single_deck = pd.Series(matches_single_deck, index = matches_per_deck.columns)
+            matches_per_deck = matches_per_deck.append(matches_single_deck, ignore_index=True)
+        matches_per_deck = matches_per_deck.sort_values(by = ["numero_duelli"], ascending=False).reset_index()
+        st.markdown(f"### Mazzo con più duelli nella serata:")
+        for index, row in matches_per_deck.iterrows():
+            if matches_per_deck.iloc[index]["numero_duelli"] == matches_per_deck.iloc[0]["numero_duelli"]:
+                st.markdown(f"{matches_per_deck.iloc[index]['deck_name']} ➡ {matches_per_deck.iloc[index]['numero_duelli']} duelli")
+            else:
+                break
+
+        ## Lista duelli serata
+        st.markdown(f"### Lista dei duelli della serata:")
+        print_duelli(matches_serata)
+
 
 
 

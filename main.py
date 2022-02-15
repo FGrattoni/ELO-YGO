@@ -838,6 +838,8 @@ if pagina_selezionata == "✨ Highlights serata":
 
 
 
+
+
 ################################
 # PAGINA: "📈 Statistiche mazzo"
 if pagina_selezionata == "📈 Statistiche mazzo":
@@ -1012,3 +1014,101 @@ if pagina_selezionata == "🛒 Cardmarket":
 
 
 
+
+
+
+
+
+
+if True:
+
+    print()
+    print()
+    print()
+
+    data_selezionata = "12/02/2022"
+    matches_serata = filter_matches(matches, date = [data_selezionata])
+
+    duelli_serata       = []
+    vittorie_serata     = []
+    elo_before_serata   = []
+    elo_after_serata    = []
+    delta_elo_serata    = []
+    posizione_classifica_before = []
+    posizione_classifica_after  = []
+    delta_posizione_classifica  = []
+    for index, row in lista_mazzi.iterrows():
+        deck_name = row['deck_name']
+        duelli_mazzo = 0
+        vittorie_mazzo = 0
+        elo_before_mazzo = 0
+        elo_after_mazzo = 0
+        for index, row_match in matches_serata.iterrows():
+            if deck_name == row_match['deck_name']:
+                duelli_mazzo += 1
+                if row_match['win_flag'] == 1:
+                    vittorie_mazzo += 1
+                if elo_before_mazzo == 0:
+                    elo_before_mazzo = row_match['elo_before']
+                elo_after_mazzo = row_match['elo_after']
+        duelli_serata.append(duelli_mazzo)
+        vittorie_serata.append(vittorie_mazzo)
+        if duelli_mazzo == 0: elo_before_serata.append(row['elo'])
+        else: elo_before_serata.append(elo_before_mazzo)
+        if duelli_mazzo == 0: elo_after_serata.append(row['elo'])
+        else: elo_after_serata.append(elo_after_mazzo)
+        delta_elo_serata.append(elo_after_mazzo - elo_before_mazzo)
+    lista_mazzi['duelli_serata']        = duelli_serata
+    lista_mazzi['vittorie_serata']      = vittorie_serata
+    lista_mazzi['elo_before_serata']    = elo_before_serata
+    lista_mazzi['elo_after_serata']     = elo_after_serata
+    lista_mazzi['delta_elo_serata']     = delta_elo_serata
+
+    for index, row_deck in lista_mazzi.iterrows():
+        deck_name       = row_deck['deck_name']
+        deck_elo_before = row_deck['elo_before_serata']
+        deck_elo_after  = row_deck['elo_after_serata']
+        posizione_mazzo_before  = 1
+        posizione_mazzo_after   = 1
+        for index, row_classifica in lista_mazzi.iterrows():
+            if deck_name == '': continue # no need to compute for the empty row
+            if (row_classifica['elo_before_serata'] == '') or (deck_elo_before == ''):
+                posizione_mazzo_before  += 1
+                posizione_mazzo_after   += 1
+                continue
+            if (row_classifica['deck_name'] != deck_name) and (row_classifica['elo_before_serata'] >= int(deck_elo_before)):
+                posizione_mazzo_before += 1
+            if (row_classifica['deck_name'] != deck_name) and (row_classifica['elo_after_serata'] >= int(deck_elo_after)):
+                posizione_mazzo_after += 1
+        posizione_classifica_before.append(posizione_mazzo_before - 1)
+        posizione_classifica_after.append(posizione_mazzo_after - 1)
+        delta_posizione_classifica.append(posizione_mazzo_after - posizione_mazzo_before)
+
+    lista_mazzi['posizione_classifica_before']  = posizione_classifica_before
+    lista_mazzi['posizione_classifica_after']   = posizione_classifica_after
+    lista_mazzi['delta_posizione_classifica']   = delta_posizione_classifica
+
+
+    classifica = lista_mazzi[1:].copy()
+    classifica = classifica.astype({"elo": int})
+    classifica = classifica.astype({"elo_before_serata": int})
+    classifica = classifica.astype({"elo_after_serata": int})
+
+    classifica.sort_values(by = ['posizione_classifica_after'], inplace=True, ascending=True)
+    classifica = classifica.reset_index()
+    output = ""
+    for index, row in classifica.iterrows():
+        posizione_classifica_before = row['posizione_classifica_before']
+        posizione_classifica_after = row['posizione_classifica_after']
+        delta_posizione_classifica = row['delta_posizione_classifica']
+        if posizione_classifica_after == 1: output = output + "🥇 "
+        if posizione_classifica_after == 2: output = output + "🥈 "
+        if posizione_classifica_after == 3: output = output + "🥉 "
+        if posizione_classifica_after == len(classifica): output = output + "🥄 "
+        output = output + f"**{posizione_classifica_after}** - {row['deck_name']} - {row['elo_after_serata']} "
+        if delta_posizione_classifica < 0: output = output + f"(<font color=#00CC00> ▲ {- delta_posizione_classifica} </font>) "
+        if delta_posizione_classifica > 0: output = output + f"(<font color=Red> ▼ {- delta_posizione_classifica} </font>) "
+        output = output + "  \n"
+    st.markdown(output, unsafe_allow_html=True)
+
+    print(lista_mazzi)

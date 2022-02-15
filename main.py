@@ -275,8 +275,11 @@ def filter_matches(matches, deck_1 = "", deck_2 = "", date = []):
 
 
 
-def print_duelli(matches):
+def print_duelli(matches, condensed = False):
     """ funzione che scrive a video lista dei duelli disputati:
+    Input:
+    - condensed = False: se True ritorna i duelli in maniera condensata. 
+        e.g. deck_A 2-1 deck_B
     """
     output = ""
 
@@ -307,7 +310,8 @@ def get_deck_matches(matches, deck):
     - - - - - - -
     USED IN:
      - plots functions
-     - statistics functions """
+     - statistics functions
+     - functions for highlights serata """
 
     # # Extract deck data
     matches_copy = matches.copy()
@@ -322,9 +326,9 @@ def get_deck_matches(matches, deck):
     for id_match in deck_matches['id_match']:
         #opponent_row = matches[matches['id_match'] == id_match and matches['deck_name'] != deck]
         opponent_row = matches_copy.query('id_match == @id_match and deck_name != @deck').reset_index()
-        deck_matches['opponent_name'].iloc[i]       = opponent_row['deck_name'].iloc[0]
-        deck_matches['opponent_elo_before'].iloc[i] = opponent_row['elo_before'].iloc[0]
-        deck_matches['opponent_elo_after'].iloc[i]  = opponent_row['elo_after'].iloc[0]
+        deck_matches.loc[deck_matches.index[0], 'opponent_name'] = opponent_row.loc[opponent_row.index[0], 'deck_name']
+        deck_matches.loc[deck_matches.index[0], 'opponent_elo_before'] = opponent_row.loc[opponent_row.index[0], 'elo_before']
+        deck_matches.loc[deck_matches.index[0], 'opponent_elo_after'] = opponent_row.loc[opponent_row.index[0], 'elo_after']
         i += 1
     
     return deck_matches
@@ -793,7 +797,7 @@ if pagina_selezionata == "🔍 Confronta mazzi":
 
     if button_confronta_mazzi:
         statistiche_duelli(deck_1, deck_2, matches)
-        storico_duelli(deck_1, deck_2, matches)
+        print_duelli(filter_matches(matches, deck_1, deck_2))
 
 
 
@@ -823,7 +827,7 @@ if pagina_selezionata == "✨ Highlights serata":
         st.markdown(f"### Mazzo con più duelli nella serata:")
         for index, row in matches_per_deck.iterrows():
             if matches_per_deck.iloc[index]["numero_duelli"] == matches_per_deck.iloc[0]["numero_duelli"]:
-                st.markdown(f"{matches_per_deck.iloc[index]['deck_name']} ➡ {matches_per_deck.iloc[index]['numero_duelli']} duelli")
+                st.markdown(f"{matches_per_deck.iloc[index]['deck_name']} - {matches_per_deck.iloc[index]['numero_duelli']} duelli")
             else:
                 break
 

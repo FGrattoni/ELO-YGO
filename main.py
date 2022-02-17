@@ -7,6 +7,7 @@
 #from pyarrow import ListValue
 from unittest import result
 from PIL.Image import TRANSPOSE
+from black import out
 # from black import out
 import streamlit as st
 import pandas as pd
@@ -30,6 +31,8 @@ import random
 chat_id = st.secrets["telegram"]['chat_id']
 bot_id = st.secrets["telegram"]['bot_id']
 
+verde_elo = "#00CC00"
+rosso_elo = "Red"
 
 
 # Streamlit CONFIGURATION settings
@@ -211,6 +214,7 @@ def duello_vinto_format(row):
 
 
 def storico_duelli(deck1, deck2, matches):
+    """ DEPRECATED"""
     matches_horizontal = pd.DataFrame(columns=["Data", "Deck 1", "Deck 2", "Risultato", "Elo deck 1", "Elo deck 2"])
     for index, row in matches.iterrows():
         if matches.loc[index]["deck_pos"] == 1:
@@ -241,16 +245,97 @@ def storico_duelli(deck1, deck2, matches):
 
 
 
+def filter_matches(matches, deck_1 = "", deck_2 = "", date = []):
+    """ Funzione che filtra l alista dei duelli disputati (matches)
+    OPTIONS: 
+        - filtrare per singolo deck
+        - filtrare per coppia di deck per avere duelli esclusivamente tra i due deck
+        - filtrare per data
+    INPUT: 
+        - matches: lista dei match. la funzione lo filtra, 
+                    ma l'input può essere preventivamente filtrato 
+        - deck_1: nome del deck come in lista_mazzi. Default = ""
+        - deck_2: nome del deck come in lista_mazzi. Default = ""
+        - date: stringa di data della stessa forma del dataset matches. Default: ""
+    """
+    if date != []:
+            matches = matches[matches["date"].isin(date)]
+        
+    if deck_1 != "":
+        id_match_list = []
+        for index, row in matches.iterrows():
+            if row["deck_name"] == deck_1:
+                id_match_list.append(row["id_match"])
+        matches = matches[matches["id_match"].isin(id_match_list)]
+    if deck_2 != "":
+        id_match_list = []
+        for index, row in matches.iterrows():
+            if row["deck_name"] == deck_2:
+                id_match_list.append(row["id_match"])
+        matches = matches[matches["id_match"].isin(id_match_list)]
+
+    return matches
+
+
+
+def print_duelli(matches, condensed = False):
+    """ funzione che scrive a video lista dei duelli disputati:
+    Input:
+    - condensed = False: se True ritorna i duelli in maniera condensata. 
+        e.g. deck_A 2-1 deck_B
+    """
+    output = ""
+
+    for index, row in matches.iterrows():
+        if matches.loc[index]["deck_pos"] == 1:
+            deck_name1 = matches.loc[index]["deck_name"]
+            id_match = row["id_match"]
+            win_flag_1 = row["win_flag"]
+            deck_name2 = matches[(matches["id_match"] == id_match) & (matches["deck_pos"] == 2)].reset_index()
+            deck_name2 = deck_name2.loc[0]["deck_name"]
+            if win_flag_1 == 1: 
+                output = output + f'<font color={verde_elo}>' + deck_name1 + '</font>'
+                output = output + " - "
+                output = output + f'<font color={rosso_elo}>' + deck_name2 + '</font>  \n'
+            else:
+                output = output + f'<font color={rosso_elo}>' + deck_name1 + '</font>'
+                output = output + " - "
+                output = output + f'<font color={verde_elo}>' + deck_name2 + '</font>  \n'
+
+    st.markdown(output, unsafe_allow_html = True)
+    return True
+
+
+
+def output_info_mazzo_serata(lista_mazzi_selezionati):
+    """Funzione per preparare output con statistiche del mazzo per dataset mazzi per serata.
+    Usato in:
+        Highlights serata. Per la preparazione di output con info di base del deck durante la serata
+    ·🞄 """
+    output = ""
+    for index, row in lista_mazzi_selezionati.iterrows():
+        output = output + f" ⬩ **{row['deck_name']}** - {row['duelli_serata']} duelli "
+        output = output + f"({ int( (row['vittorie_serata'] / row['duelli_serata']) * 100) }%) ⬩ "
+        if int(row['delta_elo_serata']) > 0: output = output + f"<font color={verde_elo}>+"
+        elif int(row['delta_elo_serata']) < 0: output = output + f"<font color={rosso_elo}>"
+        else: f"<font>"
+        output = output + f"{int(row['delta_elo_serata'])}</font> punti  \n"
+    return output 
+
+
+
 def get_deck_matches(matches, deck):
     """ get a dataframe of the matches (with elo changes linked to them) for a single deck 
     Add the opponent for each match and a few of his statistics. 
     - - - - - - -
     USED IN:
      - plots functions
-     - statistics functions """
+     - statistics functions
+     - functions for highlights serata """
 
     # # Extract deck data
-    deck_matches = matches[matches['deck_name'] == deck].reset_index()
+    matches_copy = matches.copy()
+    deck_matches = matches_copy[matches_copy['deck_name'] == deck].reset_index()
 
     # # Add opponent statistics
     # add empty columns
@@ -260,10 +345,10 @@ def get_deck_matches(matches, deck):
     i = 0
     for id_match in deck_matches['id_match']:
         #opponent_row = matches[matches['id_match'] == id_match and matches['deck_name'] != deck]
-        opponent_row = matches.query('id_match == @id_match and deck_name != @deck').reset_index()
-        deck_matches['opponent_name'].iloc[i]       = opponent_row['deck_name'].iloc[0]
-        deck_matches['opponent_elo_before'].iloc[i] = opponent_row['elo_before'].iloc[0]
-        deck_matches['opponent_elo_after'].iloc[i]  = opponent_row['elo_after'].iloc[0]
+        opponent_row = matches_copy.query('id_match == @id_match and deck_name != @deck').reset_index()
+        deck_matches.loc[deck_matches.index[0], 'opponent_name'] = opponent_row.loc[opponent_row.index[0], 'deck_name']
+        deck_matches.loc[deck_matches.index[0], 'opponent_elo_before'] = opponent_row.loc[opponent_row.index[0], 'elo_before']
+        deck_matches.loc[deck_matches.index[0], 'opponent_elo_after'] = opponent_row.loc[opponent_row.index[0], 'elo_after']
         i += 1
     
     return deck_matches
@@ -337,7 +422,8 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi):
 
     # statistiche dei duelli tra i due deck
     statistiche_duelli(deck1, deck2, matches)
-    storico_duelli(deck1, deck2, matches)
+    # storico_duelli(deck1, deck2, matches)
+    print_duelli(filter_matches(matches, deck1, deck2))
     # # # # # # # # # # # # 
 
     # scheda con dettaglio dei duelli tra i due deck
@@ -623,6 +709,7 @@ pagina_selezionata = st.sidebar.radio("Menu:",
                          "➕ Aggiungi un duello", 
                          "🏆 Classifiche",
                          "🔍 Confronta mazzi",
+                         "✨ Highlights serata",
                          "📈 Statistiche mazzo",
                          "📝 Info ELO",
                          "🛒 Cardmarket"])
@@ -631,7 +718,7 @@ pagina_selezionata = st.sidebar.radio("Menu:",
 
 
 ################################
-# PAGINA: "Debug"
+# SEZIONE: "Debug"
 if st.secrets["debug"]['debug_offline'] == "True":
     with st.expander("matches"):
         st.dataframe(matches)
@@ -730,7 +817,187 @@ if pagina_selezionata == "🔍 Confronta mazzi":
 
     if button_confronta_mazzi:
         statistiche_duelli(deck_1, deck_2, matches)
-        storico_duelli(deck_1, deck_2, matches)
+        print_duelli(filter_matches(matches, deck_1, deck_2))
+
+
+
+################################
+# PAGINA: "✨ Highlights serata"
+if pagina_selezionata == "✨ Highlights serata":
+    st.markdown("## Highlights della serata✨")
+    
+    with st.form(key = 'highlights serata'):
+        lista_date = matches["date"].drop_duplicates()[::-1]     
+        data_selezionata = st.multiselect("Seleziona data:", options=lista_date)
+        button_highlights = st.form_submit_button("Highlights ✨")
+
+    if button_highlights:
+        matches_serata = filter_matches(matches, date = data_selezionata)
+        if data_selezionata==[]:
+            st.warning("Selezionare almeno un giorno per avere informazioni su una singola serata.")
+
+        ## Creazione delle statistiche della serata
+        duelli_serata       = []
+        vittorie_serata     = []
+        elo_before_serata   = []
+        elo_after_serata    = []
+        delta_elo_serata    = []
+        posizione_classifica_before = []
+        posizione_classifica_after  = []
+        delta_posizione_classifica  = []
+        for index, row in lista_mazzi.iterrows():
+            deck_name = row['deck_name']
+            duelli_mazzo = 0
+            vittorie_mazzo = 0
+            elo_before_mazzo = 0
+            elo_after_mazzo = 0
+            for index, row_match in matches_serata.iterrows():
+                if deck_name == row_match['deck_name']:
+                    duelli_mazzo += 1
+                    if row_match['win_flag'] == 1:
+                        vittorie_mazzo += 1
+                    if elo_before_mazzo == 0:
+                        elo_before_mazzo = row_match['elo_before']
+                    elo_after_mazzo = row_match['elo_after']
+            duelli_serata.append(duelli_mazzo)
+            vittorie_serata.append(vittorie_mazzo)
+            if duelli_mazzo == 0: elo_before_serata.append(row['elo'])
+            else: elo_before_serata.append(elo_before_mazzo)
+            if duelli_mazzo == 0: elo_after_serata.append(row['elo'])
+            else: elo_after_serata.append(elo_after_mazzo)
+            delta_elo_serata.append(elo_after_mazzo - elo_before_mazzo)
+        lista_mazzi['duelli_serata']        = duelli_serata
+        lista_mazzi['vittorie_serata']      = vittorie_serata
+        lista_mazzi['elo_before_serata']    = elo_before_serata
+        lista_mazzi['elo_after_serata']     = elo_after_serata
+        lista_mazzi['delta_elo_serata']     = delta_elo_serata
+
+        for index, row_deck in lista_mazzi.iterrows():
+            deck_name       = row_deck['deck_name']
+            deck_elo_before = row_deck['elo_before_serata']
+            deck_elo_after  = row_deck['elo_after_serata']
+            posizione_mazzo_before  = 1
+            posizione_mazzo_after   = 1
+            for index, row_classifica in lista_mazzi.iterrows():
+                if deck_name == '': continue # no need to compute for the empty row
+                if (row_classifica['elo_before_serata'] == '') or (deck_elo_before == ''):
+                    posizione_mazzo_before  += 1
+                    posizione_mazzo_after   += 1
+                    continue
+                if (row_classifica['deck_name'] != deck_name) and (row_classifica['elo_before_serata'] >= int(deck_elo_before)):
+                    posizione_mazzo_before += 1
+                if (row_classifica['deck_name'] != deck_name) and (row_classifica['elo_after_serata'] >= int(deck_elo_after)):
+                    posizione_mazzo_after += 1
+            posizione_classifica_before.append(posizione_mazzo_before - 1)
+            posizione_classifica_after.append(posizione_mazzo_after - 1)
+            delta_posizione_classifica.append(posizione_mazzo_after - posizione_mazzo_before)
+
+        lista_mazzi['posizione_classifica_before']  = posizione_classifica_before
+        lista_mazzi['posizione_classifica_after']   = posizione_classifica_after
+        lista_mazzi['delta_posizione_classifica']   = delta_posizione_classifica
+
+        st.markdown("")
+        st.markdown(f"Numero di duelli nella serata: **{sum(lista_mazzi['duelli_serata'])}**")
+
+        # TOP della serata
+        st.markdown("### 😎 Top deck della serata")
+
+        ## Mazzo con più duelli
+        max_duelli = lista_mazzi[lista_mazzi['duelli_serata'] == max(lista_mazzi['duelli_serata'])]
+        output = ""
+        if len(max_duelli) > 1: output = output + "Mazzi con più duelli:  \n"
+        else: output = output + "Mazzo con più duelli:  \n"
+        output = output + output_info_mazzo_serata(max_duelli)
+        st.markdown(output, unsafe_allow_html=True)
+
+        ## Mazzo con più punti ELO
+        max_elo = lista_mazzi[lista_mazzi['delta_elo_serata'] == max(lista_mazzi['delta_elo_serata'])]
+        output = ""
+        if len(max_elo) > 1: output = output + "Mazzi che hanno guadagnato più punti ELO:  \n"
+        else: output = output + "Mazzo che ha guadagnato più punti ELO:  \n"
+        output = output + output_info_mazzo_serata(max_elo)
+        st.markdown(output, unsafe_allow_html=True)
+
+        st.markdown("---")
+        # WORST della serata
+        st.markdown("### 😪 Peggiori deck della serata")
+
+        ## Mazzo con meno punti ELO
+        min_elo = lista_mazzi[lista_mazzi['delta_elo_serata'] == min(lista_mazzi['delta_elo_serata'])]
+        output = ""
+        if len(min_elo) > 1: output = output + "Mazzi che hanno perso più punti ELO:  \n"
+        else: output = output + "Mazzo che ha perso più punti ELO:  \n"
+        output = output + output_info_mazzo_serata(min_elo)
+        st.markdown(output, unsafe_allow_html=True)
+
+        st.markdown("---")
+        # Delta elo serata per proprietario deck
+        st.markdown("### 👤 Delta ELO per proprietario deck")
+        pivot_serata = pd.pivot_table(
+            data = lista_mazzi[lista_mazzi['duelli_serata'] != 0], 
+            values = ['delta_elo_serata', 'duelli_serata', 'vittorie_serata'], 
+            index = 'owner', 
+            aggfunc='sum').reset_index("owner")
+        pivot_serata = pivot_serata.sort_values(by = 'delta_elo_serata', ascending=False)
+        output = ''
+        for index, row in pivot_serata.iterrows():
+            if row['owner'] == "": continue
+            else:
+                delta = round(row['delta_elo_serata'], 1)
+                duelli = row['duelli_serata']
+                percentuale = int( row['vittorie_serata'] / row['duelli_serata'] * 100 )
+                output = output + f" ⬩ **{row['owner']}**: "
+                if delta > 0: output = output + f"<font color={verde_elo}>+{delta}</font> punti con {duelli} duelli ({percentuale}%)"
+                elif delta < 0: output = output + f"<font color={rosso_elo}>{delta}</font> punti con {duelli} duelli ({percentuale}%)"
+                else: output = output + f"+0 punti con {duelli} duelli ({percentuale}%)"
+            output = output + "  \n"
+        st.markdown(output, unsafe_allow_html=True)
+
+
+        st.markdown("---")
+        # Sezione di Maggiori dettagli
+        st.markdown("### ℹ Maggiori dettagli della serata")
+
+        with st.expander("🔍 Dettaglio per tutti i mazzi:"):
+            lista_mazzi_serata = lista_mazzi[lista_mazzi['duelli_serata'] > 0]
+            lista_mazzi_serata = lista_mazzi_serata.sort_values(by=['duelli_serata'], ascending=False)
+            output = ""
+            output = output + output_info_mazzo_serata(lista_mazzi_serata)
+            st.markdown(output, unsafe_allow_html=True)
+
+
+        # # Classifica con DELTA
+        classifica = lista_mazzi[1:].copy()
+        classifica = classifica.astype({"elo": int})
+        classifica = classifica.astype({"elo_before_serata": int})
+        classifica = classifica.astype({"elo_after_serata": int})
+
+        classifica.sort_values(by = ['posizione_classifica_after'], inplace=True, ascending=True)
+        classifica = classifica.reset_index()
+        output = ""
+        for index, row in classifica.iterrows():
+            posizione_classifica_before = row['posizione_classifica_before']
+            posizione_classifica_after = row['posizione_classifica_after']
+            delta_posizione_classifica = row['delta_posizione_classifica']
+            if posizione_classifica_after == 1: output = output + "🥇 "
+            if posizione_classifica_after == 2: output = output + "🥈 "
+            if posizione_classifica_after == 3: output = output + "🥉 "
+            if posizione_classifica_after == len(classifica): output = output + "🥄 "
+            output = output + f"**{posizione_classifica_after}** - {row['deck_name']} - {row['elo_after_serata']} "
+            if delta_posizione_classifica < 0: output = output + f"(<font color={verde_elo}> ▲ {- delta_posizione_classifica} </font>) "
+            if delta_posizione_classifica > 0: output = output + f"(<font color={rosso_elo}> ▼ {- delta_posizione_classifica} </font>) "
+            output = output + "  \n"
+        with st.expander("🏆 Classifica aggiornata dopo la serata:"):
+            st.markdown(output, unsafe_allow_html=True)
+
+        
+         ## Lista duelli serata
+        with st.expander("💥 Lista dei duelli della serata:"):
+            print_duelli(matches_serata)
+
+
+
+
 
 
 
@@ -825,6 +1092,7 @@ if pagina_selezionata == "🛒 Cardmarket":
         Lop_vi = st.checkbox("lop-vi")
         Fbgame = st.checkbox("Fbgame")
         Blastercards = st.checkbox("Blastercards")
+        Angeli_e_draghi = st.checkbox("Angeli_e_draghi")
 
         carta_input = st.text_input("Carta da cercare:")
 
@@ -858,6 +1126,8 @@ if pagina_selezionata == "🛒 Cardmarket":
             lista_seller.append("Fbgame")
         if Blastercards:
             lista_seller.append("Blastercards")
+        if Angeli_e_draghi:
+            lista_seller.append("Angeli-e-Draghi")
 
         carta = carta_input.replace(' ', '+')
 
@@ -908,3 +1178,97 @@ if pagina_selezionata == "🛒 Cardmarket":
 
 
 
+
+
+
+
+
+
+# if True:
+
+#     data_selezionata = "12/02/2022"
+#     matches_serata = filter_matches(matches, date = [data_selezionata])
+
+#     duelli_serata       = []
+#     vittorie_serata     = []
+#     elo_before_serata   = []
+#     elo_after_serata    = []
+#     delta_elo_serata    = []
+#     posizione_classifica_before = []
+#     posizione_classifica_after  = []
+#     delta_posizione_classifica  = []
+#     for index, row in lista_mazzi.iterrows():
+#         deck_name = row['deck_name']
+#         duelli_mazzo = 0
+#         vittorie_mazzo = 0
+#         elo_before_mazzo = 0
+#         elo_after_mazzo = 0
+#         for index, row_match in matches_serata.iterrows():
+#             if deck_name == row_match['deck_name']:
+#                 duelli_mazzo += 1
+#                 if row_match['win_flag'] == 1:
+#                     vittorie_mazzo += 1
+#                 if elo_before_mazzo == 0:
+#                     elo_before_mazzo = row_match['elo_before']
+#                 elo_after_mazzo = row_match['elo_after']
+#         duelli_serata.append(duelli_mazzo)
+#         vittorie_serata.append(vittorie_mazzo)
+#         if duelli_mazzo == 0: elo_before_serata.append(row['elo'])
+#         else: elo_before_serata.append(elo_before_mazzo)
+#         if duelli_mazzo == 0: elo_after_serata.append(row['elo'])
+#         else: elo_after_serata.append(elo_after_mazzo)
+#         delta_elo_serata.append(elo_after_mazzo - elo_before_mazzo)
+#     lista_mazzi['duelli_serata']        = duelli_serata
+#     lista_mazzi['vittorie_serata']      = vittorie_serata
+#     lista_mazzi['elo_before_serata']    = elo_before_serata
+#     lista_mazzi['elo_after_serata']     = elo_after_serata
+#     lista_mazzi['delta_elo_serata']     = delta_elo_serata
+
+#     for index, row_deck in lista_mazzi.iterrows():
+#         deck_name       = row_deck['deck_name']
+#         deck_elo_before = row_deck['elo_before_serata']
+#         deck_elo_after  = row_deck['elo_after_serata']
+#         posizione_mazzo_before  = 1
+#         posizione_mazzo_after   = 1
+#         for index, row_classifica in lista_mazzi.iterrows():
+#             if deck_name == '': continue # no need to compute for the empty row
+#             if (row_classifica['elo_before_serata'] == '') or (deck_elo_before == ''):
+#                 posizione_mazzo_before  += 1
+#                 posizione_mazzo_after   += 1
+#                 continue
+#             if (row_classifica['deck_name'] != deck_name) and (row_classifica['elo_before_serata'] >= int(deck_elo_before)):
+#                 posizione_mazzo_before += 1
+#             if (row_classifica['deck_name'] != deck_name) and (row_classifica['elo_after_serata'] >= int(deck_elo_after)):
+#                 posizione_mazzo_after += 1
+#         posizione_classifica_before.append(posizione_mazzo_before - 1)
+#         posizione_classifica_after.append(posizione_mazzo_after - 1)
+#         delta_posizione_classifica.append(posizione_mazzo_after - posizione_mazzo_before)
+
+#     lista_mazzi['posizione_classifica_before']  = posizione_classifica_before
+#     lista_mazzi['posizione_classifica_after']   = posizione_classifica_after
+#     lista_mazzi['delta_posizione_classifica']   = delta_posizione_classifica
+
+
+#     # # Classifica con DELTA
+#     classifica = lista_mazzi[1:].copy()
+#     classifica = classifica.astype({"elo": int})
+#     classifica = classifica.astype({"elo_before_serata": int})
+#     classifica = classifica.astype({"elo_after_serata": int})
+
+#     classifica.sort_values(by = ['posizione_classifica_after'], inplace=True, ascending=True)
+#     classifica = classifica.reset_index()
+#     output = ""
+#     for index, row in classifica.iterrows():
+#         posizione_classifica_before = row['posizione_classifica_before']
+#         posizione_classifica_after = row['posizione_classifica_after']
+#         delta_posizione_classifica = row['delta_posizione_classifica']
+#         if posizione_classifica_after == 1: output = output + "🥇 "
+#         if posizione_classifica_after == 2: output = output + "🥈 "
+#         if posizione_classifica_after == 3: output = output + "🥉 "
+#         if posizione_classifica_after == len(classifica): output = output + "🥄 "
+#         output = output + f"**{posizione_classifica_after}** - {row['deck_name']} - {row['elo_after_serata']} "
+#         if delta_posizione_classifica < 0: output = output + f"(<font color=verde_elo> ▲ {- delta_posizione_classifica} </font>) "
+#         if delta_posizione_classifica > 0: output = output + f"(<font color=Red> ▼ {- delta_posizione_classifica} </font>) "
+#         output = output + "  \n"
+#     with st.expander("Classifica aggiornata dopo la serata:"):
+#         st.markdown(output, unsafe_allow_html=True)

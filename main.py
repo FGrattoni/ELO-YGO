@@ -607,6 +607,26 @@ def ELO_plot_multiple_altair(deck_list, matches):
 
 
 
+def plot_distribuzione_mazzi(lista_mazzi): 
+    """ Altair histogram to plot the distribution of elo 
+    Used in:
+     - Classifica """
+    distribuzione_mazzi = alt.Chart(lista_mazzi[1:], height = 400).mark_bar().encode(
+        alt.X("elo", bin=True, title="ELO"),
+        alt.Y('count()', title="Numero mazzi"),
+        color = alt.Color(
+            'deck_category', 
+            legend = alt.Legend(
+                title = "Deck",
+                orient = 'bottom',
+                columns= 1)),
+                tooltip=['deck_name', 'elo', 'owner' ]
+    )
+    st.altair_chart(distribuzione_mazzi)
+    return True
+
+
+
 ######## STATISTICHE SECTION ######################
 
 def stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali):
@@ -795,6 +815,9 @@ if pagina_selezionata == "🏆 Classifiche":
         output = output + f"**{posizione}** - {deck} - {classifica['Elo'][posizione-1]}  \n"
         posizione += 1
     st.markdown(output)
+
+    plot_distribuzione_mazzi(lista_mazzi)
+
 
 
 ################################
@@ -1267,3 +1290,8 @@ if pagina_selezionata == "🛒 Cardmarket":
 #         output = output + "  \n"
 #     with st.expander("Classifica aggiornata dopo la serata:"):
 #         st.markdown(output, unsafe_allow_html=True)
+
+
+
+
+

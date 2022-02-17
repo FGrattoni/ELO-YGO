@@ -311,11 +311,11 @@ def output_info_mazzo_serata(lista_mazzi_selezionati):
     """Funzione per preparare output con statistiche del mazzo per dataset mazzi per serata.
     Usato in:
         Highlights serata. Per la preparazione di output con info di base del deck durante la serata
-    """
+    ·🞄 """
     output = ""
     for index, row in lista_mazzi_selezionati.iterrows():
-        output = output + f" 🞄 **{row['deck_name']}** - {row['duelli_serata']} duelli "
-        output = output + f"({ int( (row['vittorie_serata'] / row['duelli_serata']) * 100) }%) 🞄 "
+        output = output + f" ⬩ **{row['deck_name']}** - {row['duelli_serata']} duelli "
+        output = output + f"({ int( (row['vittorie_serata'] / row['duelli_serata']) * 100) }%) ⬩ "
         if int(row['delta_elo_serata']) > 0: output = output + f"<font color={verde_elo}>+"
         elif int(row['delta_elo_serata']) < 0: output = output + f"<font color={rosso_elo}>"
         else: f"<font>"
@@ -946,7 +946,7 @@ if pagina_selezionata == "✨ Highlights serata":
                 delta = round(row['delta_elo_serata'], 1)
                 duelli = row['duelli_serata']
                 percentuale = int( row['vittorie_serata'] / row['duelli_serata'] * 100 )
-                output = output + f" 🞄 **{row['owner']}**: "
+                output = output + f" ⬩ **{row['owner']}**: "
                 if delta > 0: output = output + f"<font color={verde_elo}>+{delta}</font> punti con {duelli} duelli ({percentuale}%)"
                 elif delta < 0: output = output + f"<font color={rosso_elo}>{delta}</font> punti con {duelli} duelli ({percentuale}%)"
                 else: output = output + f"+0 punti con {duelli} duelli ({percentuale}%)"
@@ -1092,6 +1092,7 @@ if pagina_selezionata == "🛒 Cardmarket":
         Lop_vi = st.checkbox("lop-vi")
         Fbgame = st.checkbox("Fbgame")
         Blastercards = st.checkbox("Blastercards")
+        Angeli_e_draghi = st.checkbox("Angeli_e_draghi")
 
         carta_input = st.text_input("Carta da cercare:")
 
@@ -1125,6 +1126,8 @@ if pagina_selezionata == "🛒 Cardmarket":
             lista_seller.append("Fbgame")
         if Blastercards:
             lista_seller.append("Blastercards")
+        if Angeli_e_draghi:
+            lista_seller.append("Angeli-e-Draghi")
 
         carta = carta_input.replace(' ', '+')
 

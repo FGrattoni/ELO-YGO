@@ -5,10 +5,6 @@
 #from numpy import concatenate
 #from pandas.core.frame import DataFrame
 #from pyarrow import ListValue
-from unittest import result
-from PIL.Image import TRANSPOSE
-from black import out
-# from black import out
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -21,7 +17,6 @@ import matplotlib as mlp
 import matplotlib.pyplot as plt
 import altair as alt
 from lxml import html
-import json
 import itertools
 import random
 #from gsheetsdb import connect

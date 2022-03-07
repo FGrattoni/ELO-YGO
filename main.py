@@ -20,6 +20,7 @@ import seaborn as sns
 import matplotlib as mlp
 import matplotlib.pyplot as plt
 import altair as alt
+import seaborn as sns
 from lxml import html
 import json
 import itertools
@@ -632,6 +633,34 @@ def plot_distribuzione_mazzi(lista_mazzi):
 
 
 
+def heatmap_duelli(matches):
+    years = []
+    months = []
+    for row in matches.date:
+        giorno = datetime.strptime(row, "%d/%m/%Y")
+        years.append(giorno.year)
+        months.append(giorno.month)
+    matches['year'] = years
+    matches['month'] = months
+
+    heatmap_data = pd.pivot_table(
+        data = matches,
+        values= 'date',
+        index = 'year',
+        columns = 'month',
+        aggfunc = 'count'
+    )
+    heatmap_data = heatmap_data / 2
+
+    fig, ax = plt.subplots(1, 1, figsize = (10, 1), dpi=300)
+    sns.heatmap(heatmap_data, annot=True, cbar=False)
+    ax.set_ylabel('')
+    ax.set_xlabel('')
+    st.pyplot(fig)
+    return True
+
+
+
 ######## STATISTICHE SECTION ######################
 
 def stat_perc_vittorie(deck1, vittorie_1, vittorie_2, duelli_totali):
@@ -745,6 +774,9 @@ if st.secrets["debug"]['debug_offline'] == "True":
     
     with st.expander("lista_mazzi"):
         st.dataframe(lista_mazzi[1:])
+
+    st.write("Heatmap con duelli fatti, non in utilizzo fin quando non ci saranno più dati:")
+    heatmap_duelli(matches)
     
 
 

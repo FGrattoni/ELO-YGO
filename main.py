@@ -102,6 +102,18 @@ def update_the_spreadsheet(spreadsheetname, dataframe):
 
 
 
+# DOWNLOAD THE DATA
+@st.cache(allow_output_mutation=True)
+def download_data():
+    matches = load_the_spreadsheet("matches")
+    lista_mazzi = load_the_spreadsheet("mazzi")
+    tournaments = load_the_spreadsheet("tournaments")
+    return matches, lista_mazzi, tournaments
+
+matches, lista_mazzi, tournaments = download_data()
+
+
+
 ##### TELEGRAM
 # Send message - guide: https://www.youtube.com/watch?v=M9IGRWFX_1w
 def telegram_send_message(message, bot_id, chat_id):
@@ -198,6 +210,13 @@ def update_deck_elo(deck_name1, deck_name2, elo_updated1, elo_updated2, score1, 
     spread.df_to_sheet(lista_mazzi, sheet = "mazzi", index = False)
 
     return True
+
+
+
+def probabilità_vittoria(elo_deck, elo_opponent):
+    R1 = 10**(elo_deck/400)
+    R2 = 10**(elo_opponent/400)
+    return R1/(R1+R2)
 
 
 
@@ -470,18 +489,6 @@ def get_image_from_api(card_name, language = "it"):
 
 
 
-# DOWNLOAD THE DATA
-def download_data():
-    matches = load_the_spreadsheet("matches")
-    lista_mazzi = load_the_spreadsheet("mazzi")
-    tournaments = load_the_spreadsheet("tournaments")
-
-    return matches, lista_mazzi, tournaments
-
-matches, lista_mazzi, tournaments = download_data()
-
-
-
 ######## PLOTTING SECTION ######################
 
 def get_max_elo(deck_matches):
@@ -741,7 +748,16 @@ def get_deck_rank(deck_name, ):
 
 
 
+######### TOURNAMENT #############################
 
+def probabilità_vittoria_torneo_a_eliminazione(elo_deck_1, elo_deck_2, elo_deck_3, elo_deck_4):
+    P1 = probabilità_vittoria(elo_deck_1, elo_deck_2)
+    P3 = probabilità_vittoria(elo_deck_3, elo_deck_4)
+    P4 = probabilità_vittoria(elo_deck_4, elo_deck_3)
+    PA_3 = probabilità_vittoria(elo_deck_1, elo_deck_3)
+    PA_4 = probabilità_vittoria(elo_deck_1, elo_deck_4)
+    PW1 = P1*(PA_3*P3) + P1*(PA_4*P4) 
+    return PW1
 
 
 
@@ -759,6 +775,7 @@ pagina_selezionata = st.sidebar.radio("Menu:",
                          "🏆 Classifiche",
                          "🔍 Confronta mazzi",
                          "✨ Highlights serata",
+                         "🏅 Torneo",
                          "📈 Statistiche mazzo",
                          "📝 Info ELO",
                          "🛒 Cardmarket"])
@@ -777,12 +794,16 @@ if st.secrets["debug"]['debug_offline'] == "True":
 
     st.write("Heatmap con duelli fatti, non in utilizzo fin quando non ci saranno più dati:")
     heatmap_duelli(matches)
-    
 
+    
 
 ################################
 # PAGINA: "Aggiungi un duello"
 if pagina_selezionata == "➕ Aggiungi un duello":
+
+    matches = load_the_spreadsheet("matches")
+    lista_mazzi = load_the_spreadsheet("mazzi")
+    tournaments = load_the_spreadsheet("tournaments")
 
     with st.form(key = 'insert_match'):
         c1, c2  = st.columns((1, 1))
@@ -794,7 +815,7 @@ if pagina_selezionata == "➕ Aggiungi un duello":
         with c1:
             outcome = st.radio("Vincitore: ", options = ["1", "2"])
         with c2:
-            tournament = st.selectbox("Torneo: ", options = tournaments["tournament_name"])
+            tournament = st.selectbox("Torneo: ", options = tournaments["tournament_name"].unique())
         button_insert_match = st.form_submit_button("Inserisci il duello a sistema")
 
     if not button_insert_match:
@@ -1050,6 +1071,78 @@ if pagina_selezionata == "✨ Highlights serata":
         with st.expander("💥 Lista dei duelli della serata:"):
             print_duelli(matches_serata)
 
+
+
+################################
+# PAGINA: "🏅 Torneo"
+if pagina_selezionata == "🏅 Torneo":
+
+    tournaments = load_the_spreadsheet("tournaments")
+
+    with st.form(key = "creazione_torneo"):
+        st.subheader("Crea un torneo")
+        nome_torneo = st.text_input("Nome del torneo")
+        st.markdown("---")
+        mazzi_torneo = {}
+        for owner in lista_mazzi["owner"].unique():
+            if owner == "": continue
+            mazzi_da_selezionare = [""]
+            mazzi_da_selezionare.extend(list(lista_mazzi.loc[lista_mazzi["owner"] == owner, "deck_name"]))
+            mazzi_torneo[owner] = st.selectbox(owner, mazzi_da_selezionare)
+        button_creazione_torneo = st.form_submit_button("Crea torneo")
+
+    if button_creazione_torneo: 
+        if nome_torneo in list(tournaments["tournament_name"]): 
+            st.error("Nome torneo già esistente")
+        else:
+            st.success("Torneo creato")
+            st.subheader(nome_torneo)
+
+            deck_partecipanti = []
+            for i, owner in enumerate(mazzi_torneo):
+                deck = mazzi_torneo[owner]
+                deck_partecipanti.append(deck)
+                if deck == "": continue
+                riga_torneo = [nome_torneo, "", "", deck, get_deck_elo(deck, lista_mazzi), owner]
+                tournaments.loc[len(tournaments)] = riga_torneo
+            spread.df_to_sheet(tournaments, sheet = "tournaments", index = False)
+            elo_0 = get_deck_elo(deck_partecipanti[0], lista_mazzi)
+            elo_1 = get_deck_elo(deck_partecipanti[1], lista_mazzi)
+            elo_2 = get_deck_elo(deck_partecipanti[2], lista_mazzi)
+            elo_3 = get_deck_elo(deck_partecipanti[3], lista_mazzi)
+            w0 = int(round(probabilità_vittoria_torneo_a_eliminazione(elo_0,elo_1,elo_2,elo_3),2)*100)
+            w1 = int(round(probabilità_vittoria_torneo_a_eliminazione(elo_1,elo_0,elo_2,elo_3),2)*100)
+            w2 = int(round(probabilità_vittoria_torneo_a_eliminazione(elo_2,elo_3,elo_0,elo_1),2)*100)
+            w3 = int(round(probabilità_vittoria_torneo_a_eliminazione(elo_3,elo_2,elo_0,elo_1),2)*100)
+            st.markdown(f"Vittoria del deck _{deck_partecipanti[0]}_ ({elo_0}): **{w0}%**")
+            st.markdown(f"Vittoria del deck _{deck_partecipanti[1]}_ ({elo_1}): **{w1}%**")
+            st.markdown(f"Vittoria del deck _{deck_partecipanti[2]}_ ({elo_2}): **{w2}%**")
+            st.markdown(f"Vittoria del deck _{deck_partecipanti[3]}_ ({elo_3}): **{w3}%**")
+
+
+    st.subheader("Probabilità vittoria")
+    with st.form(key = "probabilità_inizio_torneo"):
+        st.markdown("Calcola la probabilità di vittoria ad inizio torneo \n _'Torneo ad eliminazione con 4 giocatori'_")
+        deck_partecipanti = st.multiselect("Seleziona i partecipanti: ", options=lista_mazzi["deck_name"])
+        button_probabilità = st.form_submit_button("Calcola probabilità")
+
+    if button_probabilità:
+        elo_0 = get_deck_elo(deck_partecipanti[0], lista_mazzi)
+        elo_1 = get_deck_elo(deck_partecipanti[1], lista_mazzi)
+        elo_2 = get_deck_elo(deck_partecipanti[2], lista_mazzi)
+        elo_3 = get_deck_elo(deck_partecipanti[3], lista_mazzi)
+        print(f"0: {elo_0}")
+        print(f"1: {elo_1}")
+        print(f"2: {elo_2}")
+        print(f"3: {elo_3}")
+        w0 = int(round(probabilità_vittoria_torneo_a_eliminazione(elo_0,elo_1,elo_2,elo_3),2)*100)
+        w1 = int(round(probabilità_vittoria_torneo_a_eliminazione(elo_1,elo_0,elo_2,elo_3),2)*100)
+        w2 = int(round(probabilità_vittoria_torneo_a_eliminazione(elo_2,elo_3,elo_0,elo_1),2)*100)
+        w3 = int(round(probabilità_vittoria_torneo_a_eliminazione(elo_3,elo_2,elo_0,elo_1),2)*100)
+        st.markdown(f"Vittoria del deck _{deck_partecipanti[0]}_ ({elo_0}): **{w0}%**")
+        st.markdown(f"Vittoria del deck _{deck_partecipanti[1]}_ ({elo_1}): **{w1}%**")
+        st.markdown(f"Vittoria del deck _{deck_partecipanti[2]}_ ({elo_2}): **{w2}%**")
+        st.markdown(f"Vittoria del deck _{deck_partecipanti[3]}_ ({elo_3}): **{w3}%**")
 
 
 

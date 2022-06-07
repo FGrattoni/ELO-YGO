@@ -7,7 +7,7 @@
 #from pyarrow import ListValue
 from unittest import result
 from PIL.Image import TRANSPOSE
-from black import out
+# from black import out
 # from black import out
 import streamlit as st
 import pandas as pd

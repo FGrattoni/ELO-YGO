@@ -7,8 +7,6 @@
 #from pyarrow import ListValue
 from unittest import result
 from PIL.Image import TRANSPOSE
-# from black import out
-# from black import out
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -22,7 +20,6 @@ import matplotlib.pyplot as plt
 import altair as alt
 import seaborn as sns
 from lxml import html
-import json
 import itertools
 import random
 #from gsheetsdb import connect
@@ -624,13 +621,13 @@ def plot_distribuzione_mazzi(lista_mazzi):
     """ Altair histogram to plot the distribution of elo 
     Used in:
      - Classifica """
-    distribuzione_mazzi = alt.Chart(lista_mazzi[1:], height = 400).mark_bar().encode(
+    distribuzione_mazzi = alt.Chart(lista_mazzi, height = 400).mark_bar().encode(
         alt.X("elo", bin=True, title="ELO"),
         alt.Y('count()', title="Numero mazzi"),
         color = alt.Color(
             'deck_category', 
             legend = alt.Legend(
-                title = "Deck",
+                title = "Categoria",
                 orient = 'bottom',
                 columns= 1)),
                 tooltip=['deck_name', 'elo', 'owner' ]
@@ -785,7 +782,7 @@ pagina_selezionata = st.sidebar.radio("Menu:",
 
 ################################
 # SEZIONE: "Debug"
-if st.secrets["debug"]['debug_offline'] == "True":
+if st.secrets["debug"]['debug_offline'] == "Truee":
     with st.expander("matches"):
         st.dataframe(matches)
     
@@ -874,7 +871,8 @@ if pagina_selezionata == "🏆 Classifiche":
         posizione += 1
     st.markdown(output)
 
-    plot_distribuzione_mazzi(lista_mazzi)
+    lista_distribuzione = lista_mazzi[["deck_name","elo","deck_category","owner"]]
+    plot_distribuzione_mazzi(lista_distribuzione[1:])
 
 
 
@@ -973,7 +971,7 @@ if pagina_selezionata == "✨ Highlights serata":
         lista_mazzi['delta_posizione_classifica']   = delta_posizione_classifica
 
         st.markdown("")
-        st.markdown(f"Numero di duelli nella serata: **{sum(lista_mazzi['duelli_serata'])}**")
+        st.markdown(f"Numero di duelli nella serata: **{sum(lista_mazzi['duelli_serata'])/2}**")
 
         # TOP della serata
         st.markdown("### 😎 Top deck della serata")

@@ -100,7 +100,7 @@ def update_the_spreadsheet(spreadsheetname, dataframe):
 
 
 # DOWNLOAD THE DATA
-@st.cache(allow_output_mutation=True)
+# @st.cache(allow_output_mutation=True)
 def download_data():
     matches = load_the_spreadsheet("matches")
     lista_mazzi = load_the_spreadsheet("mazzi")
@@ -109,7 +109,7 @@ def download_data():
 
 matches, lista_mazzi, tournaments = download_data()
 
-
+#print(lista_mazzi)
 
 ##### TELEGRAM
 # Send message - guide: https://www.youtube.com/watch?v=M9IGRWFX_1w
@@ -1418,6 +1418,9 @@ if pagina_selezionata == "🛒 Cardmarket":
 #         output = output + "  \n"
 #     with st.expander("Classifica aggiornata dopo la serata:"):
 #         st.markdown(output, unsafe_allow_html=True)
+
+
+
 
 
 

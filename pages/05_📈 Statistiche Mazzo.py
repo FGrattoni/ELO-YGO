@@ -1,5 +1,9 @@
 from functions import *
 
+matches = st.session_state['matches']
+lista_mazzi = st.session_state['lista_mazzi']
+tournaments = st.session_state['tournaments']
+
 ################################
 # PAGINA: "📈 Statistiche mazzo"
 with st.form(key = 'statistiche_mazzo'):

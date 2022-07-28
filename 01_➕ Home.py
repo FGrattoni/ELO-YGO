@@ -27,8 +27,8 @@ import random
 chat_id = st.secrets["telegram"]['chat_id']
 bot_id = st.secrets["telegram"]['bot_id']
 
-verde_elo = "#00CC00"
-rosso_elo = "Red"
+st.session_state['verde_elo'] = "#00CC00"
+st.session_state['rosso_elo'] = "Red"
 
 
 # Streamlit CONFIGURATION settings
@@ -83,6 +83,7 @@ sh = client.open(spreadsheetname)
 
 
 # DOWNLOAD THE DATA
+@st.experimental_memo
 def download_data():
     matches = load_the_spreadsheet("matches")
     lista_mazzi = load_the_spreadsheet("mazzi")
@@ -92,7 +93,9 @@ def download_data():
 
 matches, lista_mazzi, tournaments = download_data()
 
-
+st.session_state['matches'] = matches
+st.session_state['lista_mazzi'] = lista_mazzi
+st.session_state['tournaments'] = tournaments
 
 
 
@@ -103,11 +106,8 @@ matches, lista_mazzi, tournaments = download_data()
 
 ### APP ########################
 
-st.markdown("# YGO ELO app")
-
-# SIDEBAR
-st.sidebar.write( "[🔗 Link to Google Sheets](" + spread.url + ")" )
-
+#st.markdown("# YGO ELO app")
+st.image("./YGMEME_title.jpg")
 
 ################################
 # SEZIONE: "Debug"
@@ -167,4 +167,10 @@ if button_insert_match:
     if outcome == True:
         st.success("Duello inserito correttamente a sistema")
 
+
+
+
+
+# SIDEBAR
+st.write( "[🔗 Link to Google Sheets](" + spread.url + ")" )
 

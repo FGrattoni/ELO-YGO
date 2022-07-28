@@ -1,5 +1,9 @@
 from functions import *
 
+matches = st.session_state['matches']
+lista_mazzi = st.session_state['lista_mazzi']
+tournaments = st.session_state['tournaments']
+
 ################################
 # PAGINA: "✨ Highlights serata"
 st.markdown("## Highlights della serata✨")
@@ -125,8 +129,8 @@ if button_highlights:
             duelli = row['duelli_serata']
             percentuale = int( row['vittorie_serata'] / row['duelli_serata'] * 100 )
             output = output + f" ⬩ **{row['owner']}**: "
-            if delta > 0: output = output + f"<font color={verde_elo}>+{delta}</font> punti con {duelli} duelli ({percentuale}%)"
-            elif delta < 0: output = output + f"<font color={rosso_elo}>{delta}</font> punti con {duelli} duelli ({percentuale}%)"
+            if delta > 0: output = output + f"<font color={st.session_state['verde_elo']}>+{delta}</font> punti con {duelli} duelli ({percentuale}%)"
+            elif delta < 0: output = output + f"<font color={st.session_state['rosso_elo']}>{delta}</font> punti con {duelli} duelli ({percentuale}%)"
             else: output = output + f"+0 punti con {duelli} duelli ({percentuale}%)"
         output = output + "  \n"
     st.markdown(output, unsafe_allow_html=True)
@@ -162,8 +166,8 @@ if button_highlights:
         if posizione_classifica_after == 3: output = output + "🥉 "
         if posizione_classifica_after == len(classifica): output = output + "🥄 "
         output = output + f"**{posizione_classifica_after}** - {row['deck_name']} - {row['elo_after_serata']} "
-        if delta_posizione_classifica < 0: output = output + f"(<font color={verde_elo}> ▲ {- delta_posizione_classifica} </font>) "
-        if delta_posizione_classifica > 0: output = output + f"(<font color={rosso_elo}> ▼ {- delta_posizione_classifica} </font>) "
+        if delta_posizione_classifica < 0: output = output + f"(<font color={st.session_state['verde_elo']}> ▲ {- delta_posizione_classifica} </font>) "
+        if delta_posizione_classifica > 0: output = output + f"(<font color={st.session_state['rosso_elo']}> ▼ {- delta_posizione_classifica} </font>) "
         output = output + "  \n"
     with st.expander("🏆 Classifica aggiornata dopo la serata:"):
         st.markdown(output, unsafe_allow_html=True)

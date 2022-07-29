@@ -47,16 +47,18 @@ def plot_numero_duelli_mazzi(classifica, matches):
     numero_duelli = alt.Chart(classifica, height = 900).mark_bar().encode(
         alt.X("numero_duelli:Q", title="Numero duelli"),
         alt.Y('Nome deck', title="Deck"),
-        # color = alt.Color(
-        #     'Cat.')
-        color="Cat.:"
+        color = alt.Color(
+             'numero_duelli',
+             legend=None)
+        #color="Cat."
     )
     text = numero_duelli.mark_text(
         align='left',
         baseline='middle',
         dx=3  # Nudges text to right so it doesn't appear on top of the bar
     ).encode(
-        text='numero_duelli:Q'
+        text='numero_duelli:Q',
+        color = "numero_duelli"
     )
 
     # (numero_duelli + text).properties(height=900)

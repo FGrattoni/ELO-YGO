@@ -143,14 +143,12 @@ if not button_insert_match:
         , "prev.met": "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fi275.photobucket.com%2Falbums%2Fjj295%2Fwilson911%2FWeatherReportMRL-EN-C.jpg&f=1&nofb=1"
         , "sold.pie": "https://vignette.wikia.nocookie.net/yugioh/images/f/fa/GiantSoldierofStone-TF04-JP-VG.jpg/revision/latest?cb=20130115210040&path-prefix=it"
         , "exodia"  : "https://orig00.deviantart.net/e245/f/2012/364/9/b/exodia_the_forbidden_one_by_alanmac95-d5grylr.png"
-        , "mag.ner" : "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/06cb28af-a15c-45d3-b1b6-fcbc1910e0c3/dberd1j-e363f2b7-e201-4e31-b6dd-ea75cfe0e4cc.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3sicGF0aCI6IlwvZlwvMDZjYjI4YWYtYTE1Yy00NWQzLWIxYjYtZmNiYzE5MTBlMGMzXC9kYmVyZDFqLWUzNjNmMmI3LWUyMDEtNGUzMS1iNmRkLWVhNzVjZmUwZTRjYy5wbmcifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6ZmlsZS5kb3dubG9hZCJdfQ.JxG1f74TXzHH23bTwTb2hnzMbjXgHfnEtjcWy918iyI"
         , "mag.ner2": "https://i.pinimg.com/originals/8c/35/f3/8c35f3b9c684859284240416b86f2569.png"
         , "kuriboh" : "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2F4.bp.blogspot.com%2F-0B5hoixAQO8%2FUukam4xT6LI%2FAAAAAAAABV0%2Fw6sLOKcoYHU%2Fw1200-h630-p-k-no-nu%2FWinged%2BKuriboh%2B.png&f=1&nofb=1"
         , "mos.res" : "http://4.bp.blogspot.com/-RuSjO8dQcXc/TcCXLJYAfdI/AAAAAAAAA80/lkxq0z536dQ/s1600/MonsterReborn.png"
         , "cyb.drag": "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Forig07.deviantart.net%2F8e9b%2Ff%2F2012%2F051%2F6%2F6%2Fcyber_dragon_render_by_moonmanxo-d4qfk75.png&f=1&nofb=1"
         , "cyb.dra2": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2F2.bp.blogspot.com%2F-o-k2v5lysEY%2FUn5tYpaTUlI%2FAAAAAAAAATQ%2Fi4XMvGMtaRk%2Fs1600%2FCyber%2BTwin%2BDragon.png&f=1&nofb=1"
         , "whi.dra.": "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2F2.bp.blogspot.com%2F-62vgvvFQB3g%2FUopWcotTXWI%2FAAAAAAAAAtA%2FNe21d28M1Jg%2Fs1600%2FBlue%2BEyes%2BWhite%2BDragon%2BAlternate%2B3.png&f=1&nofb=1"
-        , "wh.dra.2": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimages-wixmp-ed30a86b8c4ca887773594c2.wixmp.com%2Fintermediary%2Ff%2F06cb28af-a15c-45d3-b1b6-fcbc1910e0c3%2Fdajib0k-fb4ca87f-66c4-4aaf-9afe-97761db37741.png%2Fv1%2Ffill%2Fw_1023%2Ch_630%2Cstrp%2Fblue_eyes_alternative_white_dragon_render_by_carlos123321_dajib0k-fullview.png&f=1&nofb=1"
         # , "": ""
         # , "": ""
         # , "": ""
@@ -171,6 +169,6 @@ if button_insert_match:
 
 
 
-# SIDEBAR
+# Sheets
 st.write( "[🔗 Link to Google Sheets](" + spread.url + ")" )
 

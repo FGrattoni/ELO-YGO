@@ -127,9 +127,9 @@ with st.form(key = 'insert_match'):
         deck_2 = st.selectbox("Mazzo 2: ", lista_mazzi["deck_name"])
     c1, c2 = st.columns([1, 1])
     with c1:
-        outcome1  = st.radio("Vincitore primo duello: ",  options = ["1", "2"], horizontal=True, key="outcome1")
-        outcome2 = st.radio("Vincitore secondo duello:", options = ["0", "1", "2"], horizontal=True, key="outcome2")
-        outcome3 = st.radio("Vincitore terzo duello:",   options = ["0", "1", "2"], horizontal=True, key="outcome3")
+        outcome1  = st.radio("Vincitore primo duello: ",  options = ["1", "2"], horizontal=True, key="outcome1_radio")
+        outcome2 = st.radio("Vincitore secondo duello:", options = ["0", "1", "2"], horizontal=True, key="outcome2_radio")
+        outcome3 = st.radio("Vincitore terzo duello:",   options = ["0", "1", "2"], horizontal=True, key="outcome3_radio")
     with c2:
         tournament = st.selectbox("Torneo: ", options = tournaments["tournament_name"])
     button_insert_match = st.form_submit_button("Inserisci il duello a sistema")
@@ -185,3 +185,8 @@ if button_insert_match:
 # Sheets
 st.write( "[🔗 Link to Google Sheets](" + spread.url + ")" )
 
+
+
+
+
+print(get_deck_matches(matches, "Inzektor"))

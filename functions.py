@@ -291,9 +291,9 @@ def get_deck_matches(matches, deck):
     for id_match in deck_matches['id_match']:
         #opponent_row = matches[matches['id_match'] == id_match and matches['deck_name'] != deck]
         opponent_row = matches_copy.query('id_match == @id_match and deck_name != @deck').reset_index()
-        deck_matches.loc[deck_matches.index[0], 'opponent_name'] = opponent_row.loc[opponent_row.index[0], 'deck_name']
-        deck_matches.loc[deck_matches.index[0], 'opponent_elo_before'] = opponent_row.loc[opponent_row.index[0], 'elo_before']
-        deck_matches.loc[deck_matches.index[0], 'opponent_elo_after'] = opponent_row.loc[opponent_row.index[0], 'elo_after']
+        deck_matches.loc[deck_matches.index[i], 'opponent_name'] = opponent_row.loc[opponent_row.index[0], 'deck_name']
+        deck_matches.loc[deck_matches.index[i], 'opponent_elo_before'] = opponent_row.loc[opponent_row.index[0], 'elo_before']
+        deck_matches.loc[deck_matches.index[i], 'opponent_elo_after'] = opponent_row.loc[opponent_row.index[0], 'elo_after']
         i += 1
     
     return deck_matches
@@ -388,6 +388,14 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
             True), 
         bot_id, chat_id)
     # # # # # # # # # # # # 
+
+    
+    # Eventi duello
+    ## Sorpassi in classifica, Posizioni scese in classifica, 4^ vittoria consecutiva ...
+        
+    # # # # # # # # # # # # 
+
+
 
     return True
 

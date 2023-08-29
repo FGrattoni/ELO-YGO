@@ -26,7 +26,6 @@ import random
 # Telegram options
 chat_id = st.secrets["telegram"]['chat_id']
 bot_id = st.secrets["telegram"]['bot_id']
-print(bot_id)
 
 st.session_state['verde_elo'] = "#00CC00"
 st.session_state['rosso_elo'] = "Red"
@@ -99,8 +98,6 @@ st.session_state['lista_mazzi'] = lista_mazzi
 st.session_state['tournaments'] = tournaments
 
 
-print(matches)
-
 
 
 
@@ -130,9 +127,9 @@ with st.form(key = 'insert_match'):
         deck_2 = st.selectbox("Mazzo 2: ", lista_mazzi["deck_name"])
     c1, c2 = st.columns([1, 1])
     with c1:
-        outcome  = st.radio("Vincitore: ", options = ["0", "1", "2"], horizontal=True, key="outcome")
+        outcome1  = st.radio("Vincitore primo duello: ",  options = ["1", "2"], horizontal=True, key="outcome1")
         outcome2 = st.radio("Vincitore secondo duello:", options = ["0", "1", "2"], horizontal=True, key="outcome2")
-        outcome3 = st.radio("Vincitore terzo duello:", options = ["0", "1", "2"], horizontal=True, key="outcome3")
+        outcome3 = st.radio("Vincitore terzo duello:",   options = ["0", "1", "2"], horizontal=True, key="outcome3")
     with c2:
         tournament = st.selectbox("Torneo: ", options = tournaments["tournament_name"])
     button_insert_match = st.form_submit_button("Inserisci il duello a sistema")
@@ -163,10 +160,23 @@ if not button_insert_match:
     st.image(list(immagini_yugioh.values())[immagine_pescata])
 
 if button_insert_match:
+    
     matches, lista_mazzi, tournaments = download_data()
-    outcome = insert_match2(matches, deck_1, deck_2, outcome, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
+    outcome = insert_match2(matches, deck_1, deck_2, outcome1, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
     if outcome == True:
         st.success("Duello inserito correttamente a sistema")
+
+    if outcome2 != "0":
+        matches, lista_mazzi, tournaments = download_data()
+        outcome = insert_match2(matches, deck_1, deck_2, outcome2, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
+        if outcome == True:
+            st.success("Secondo duello inserito correttamente a sistema")
+    
+    if outcome3 != "0":
+        matches, lista_mazzi, tournaments = download_data()
+        outcome = insert_match2(matches, deck_1, deck_2, outcome3, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
+        if outcome == True:
+            st.success("Terzo duello inserito correttamente a sistema")
 
 
 

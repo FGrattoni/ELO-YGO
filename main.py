@@ -399,7 +399,7 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi):
         "deck_pos": [1], #fixed
         "date": [date],
         "time": [time],
-        "deck_name": [deck_1],
+        "deck_name": [deck1],
         "win_flag": [win_flag_1],
         "elo_before": [elo_deck1],
         "elo_after": [elo_after_1],
@@ -417,7 +417,7 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi):
         "deck_pos": [2], # fixed
         "date": [date],
         "time": [time],
-        "deck_name": [deck_2],
+        "deck_name": [deck2],
         "win_flag": [win_flag_2],
         "elo_before": [elo_deck2],
         "elo_after": [elo_after_2],
@@ -480,7 +480,7 @@ def get_image_from_api(card_name, language = "it"):
         data = api_response.json()
         id_card = data["data"][0]["id"]
 
-        st.image("https://storage.googleapis.com/ygoprodeck.com/pics/" + str(id_card) +".jpg")
+        st.image("https://images.ygoprodeck.com/images/cards/" + str(id_card) +".jpg")
 
     return True
 

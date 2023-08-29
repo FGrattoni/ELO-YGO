@@ -20,7 +20,7 @@ scope = ["https://www.googleapis.com/auth/spreadsheets",
 credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"], scopes = scope )
 client = Client(scope=scope, creds=credentials)
-spreadsheetname = "ELO db" 
+spreadsheetname = "Copy of ELO db" 
 spread = Spread(spreadsheetname, client = client)
 
 # Check if the connection is established
@@ -300,7 +300,7 @@ def get_deck_matches(matches, deck):
 
 
 
-def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi):
+def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_id, chat_id):
 
     if deck1 == deck2: 
         st.error("Errore. Mazzo 1 e Mazzo 2 combaciano.")

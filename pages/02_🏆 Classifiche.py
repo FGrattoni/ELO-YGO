@@ -3,11 +3,11 @@ from functions import *
 matches = st.session_state['matches']
 lista_mazzi = st.session_state['lista_mazzi']
 tournaments = st.session_state['tournaments']
-
+print(lista_mazzi)
 ################################
 # PAGINA: "Classifiche"
 st.markdown("## 🏆 Classifica deck")
-classifica = lista_mazzi[1:].copy()
+classifica = lista_mazzi.iloc[1:,0:9].copy()
 classifica = classifica.astype({"elo": int})
 classifica.columns = ["# Cat.", "Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note"]
 classifica.sort_values(by = ['Elo'], inplace=True, ascending=False)

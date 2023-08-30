@@ -187,6 +187,3 @@ st.write( "[🔗 Link to Google Sheets](" + spread.url + ")" )
 
 
 
-
-
-print(get_deck_matches(matches, "Inzektor"))

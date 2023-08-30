@@ -55,6 +55,20 @@ def telegram_send_message(message, bot_id, chat_id):
 
 
 
+def telegram_send_image(img_url, bot_id, chat_id):
+    url_req = "https://api.telegram.org/bot"+bot_id+"/sendPhoto?chat_id="+chat_id+"&photo="+img_url
+    requests.get(url_req)
+    return True
+
+
+
+def telegram_send_sticker(sticker_ID, bot_id, chat_id):
+    url_req = "https://api.telegram.org/bot"+bot_id+"/sendSticker?chat_id="+chat_id+"&sticker="+sticker_ID
+    requests.get(url_req)
+    return True
+
+
+
 def telegram_duello_message(deck_1, deck_2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, emoji_flag = True):
     outcome_1, outcome_2, pointer = (" - ", " - ", "")
     if emoji_flag:
@@ -300,6 +314,216 @@ def get_deck_matches(matches, deck):
 
 
 
+def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, lista_mazzi, bot_id, chat_id):
+    """ Funzione che manda un messaggio, appena dopo le informazioni del duello.
+    Possono essere mandati sticker, con sent_telegram_sticker(), oppure messaggi.
+    """
+    if outcome == "1":
+        vincitore = lista_mazzi.loc[lista_mazzi["deck_name"] == deck1, "owner"].iloc[0]
+        mazzo_vincitore = deck1
+        perdente = lista_mazzi.loc[lista_mazzi["deck_name"] == deck2, "owner"].iloc[0]
+        mazzo_perdente = deck2
+    else: 
+        vincitore = lista_mazzi.loc[lista_mazzi["deck_name"] == deck2, "owner"].iloc[0]
+        mazzo_vincitore = deck2
+        perdente = lista_mazzi.loc[lista_mazzi["deck_name"] == deck1, "owner"].iloc[0]
+        mazzo_perdente = deck1
+    
+    print(f"Vincitore = {vincitore}")
+    print(f"mazzo_vincitore = {mazzo_vincitore}")
+    print(f"perdente = {perdente}")
+    print(f'perdente == "Gabro" = {perdente == "Gabro"}')
+    print(f'mazzo_vincitore == "Obelisk" = {mazzo_vincitore == "Obelisk"}')
+
+    num = random.random()
+    if num < 0.05:
+        telegram_send_message("SEGNA BELTRA, SEGNA! 📝", bot_id, chat_id)
+
+    if mazzo_vincitore == "Nubiano":
+        telegram_send_image("https://i.imgur.com/XWBvmX6.gif", bot_id, chat_id)
+
+    if  (mazzo_vincitore == "Obelisk") and (perdente == "Gabro"):
+        telegram_send_sticker("https://i.postimg.cc/wTZ17CRg/Gabro-obelisk.webp", bot_id, chat_id)
+
+    if mazzo_vincitore == "Skull servant":
+        num = random.random()
+        print(num)
+        if num < 0.1: 
+            telegram_send_sticker("https://i.postimg.cc/PJQNtvXP/Ok-Skull-Servant-2912951370-1.webp", bot_id, chat_id) # Skull servant OK
+        elif num < 0.2: 
+            telegram_send_sticker("https://i.postimg.cc/MHWGHZrH/0bc50f6a0db89d9356c2fc7b998758f9f3ba2fa2-3055657206.webp", bot_id, chat_id) # 
+        elif num < 0.3:
+            telegram_send_sticker("https://i.postimg.cc/hthfVj47/d7572f62f9c31ee95187aa4e8a0e1df8-367954919-1.webp", bot_id, chat_id) # 
+        elif num < 0.4:
+            telegram_send_sticker("https://i.postimg.cc/2y2SZpPw/king-of-the-skull-servants-render-by-alanmac95-dceu7qn-pre-2387621854.webp", bot_id, chat_id) # 
+        elif num < 0.5:
+            telegram_send_sticker("https://i.postimg.cc/4NfKNPrP/Skull-servant.webp", bot_id, chat_id) # 
+        elif num < 0.6:
+            telegram_send_sticker("https://i.postimg.cc/8PZ7FWGS/Skull-servant-lightning.webp", bot_id, chat_id) # 
+        elif num < 0.7:
+            telegram_send_sticker("https://i.postimg.cc/rmGmqRj7/Skull-Servant-LOB-EN-C-3222265127.webp", bot_id, chat_id) # 
+        elif num < 0.78:
+            telegram_send_sticker("https://i.postimg.cc/HkkVQC1R/fgratt5-King-of-an-army-of-skeletons-art-by-Mucha-stained-glass-242a8f52-a4c4-4ff5-9d6d-f21ccfe6b6c2.webp", bot_id, chat_id) # 
+        elif num < 0.85:
+            telegram_send_sticker("https://i.postimg.cc/65w7pvj9/FGratt6-anime-skeleton-vector-art-inspired-by-Kano-Hogai-ukiyo-35c12af1-9455-49ce-922d-f79ad7442161.webp", bot_id, chat_id) # 
+        elif num < 0.94:
+            telegram_send_sticker("https://i.postimg.cc/y60gKPTQ/FGratt6-octrender-8k-hyperreal-skeleton-king-with-Dripping-glos-3f284b55-5086-42dc-a3a8-2e29a3ac74fd.webp", bot_id, chat_id) # 
+        elif num < 0.999:
+            telegram_send_sticker("https://i.postimg.cc/br0sRyJc/fgratt8-King-of-skeletons-on-a-mountains-of-skulls-playing-card-732470d5-f5ce-433e-ba13-9226d60c7592.webp", bot_id, chat_id) 
+        
+    if mazzo_vincitore == "Dinosauro":
+        num = random.random()
+        print(num)
+        if num < 0.1: 
+            telegram_send_sticker("https://i.postimg.cc/Y90bS0Sq/IMG-20211225-WA0004.webp", bot_id, chat_id) # 
+
+    if vincitore == "Gabro":
+        num = random.random()
+        print(num)
+        if num < 0.1: 
+            telegram_send_message("BOM BAM GABRO! 💥", bot_id, chat_id) # 
+
+    if (deck1 == "Slifer" and deck2 == "Obelisk") or (deck1 == "Obelisk" and deck2 == "Slifer"):
+        num = random.random()
+        print(num)
+        if num < 0.125: 
+            telegram_send_sticker("https://i.postimg.cc/RFMxVVvq/Slifer-vs-Obelisk-1.webp", bot_id, chat_id) # 
+        elif num < 0.25: 
+            telegram_send_sticker("https://i.postimg.cc/5NGJqVSk/Slifer-vs-Obelisk-2.webp", bot_id, chat_id) # 
+        elif num < 0.375:
+            telegram_send_sticker("https://i.postimg.cc/Kc0xjLkb/Slifer-vs-Obelisk-3.webp", bot_id, chat_id) # 
+        elif num < 0.5:
+            telegram_send_sticker("https://i.postimg.cc/ncMZDzBD/Slifer-vs-Obelisk-4.webp", bot_id, chat_id) # 
+        elif num < 0.625:
+            telegram_send_sticker("https://i.postimg.cc/sghrTNnf/Slifer-vs-Obelisk-5.webp", bot_id, chat_id) # 
+        elif num < 0.75:
+            telegram_send_sticker("https://i.postimg.cc/8CdVSrQq/Slifer-vs-Obelisk-6.webp", bot_id, chat_id) # 
+        elif num < 0.875:
+            telegram_send_sticker("https://i.postimg.cc/7Lrydnc3/Slifer-vs-Obelisk-7.webp", bot_id, chat_id) # 
+        else:
+            telegram_send_sticker("https://i.postimg.cc/tJvjcQQJ/Slifer-vs-Obelisk-8.webp", bot_id, chat_id) # 
+
+    elif mazzo_vincitore == "Slifer": 
+        num = random.random()
+        print(num)
+        if num < 0.125: 
+            telegram_send_sticker("https://i.postimg.cc/ZqvQ9bZJ/Slifer-1.webp", bot_id, chat_id) # 
+        elif num < 0.25: 
+            telegram_send_sticker("https://i.postimg.cc/qq4DZ2K7/Slifer-2.webp", bot_id, chat_id) # 
+        elif num < 0.375:
+            telegram_send_sticker("https://i.postimg.cc/W3Mfn5hK/Slifer-3.webp", bot_id, chat_id) # 
+        elif num < 0.5:
+            telegram_send_sticker("https://i.postimg.cc/pTN6zwXz/Slifer-4.webp", bot_id, chat_id) # 
+
+
+
+
+    return True
+
+
+
+def eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, bot_id, chat_id, matches, 
+                              rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post):
+    """Funzione che manda le statistiche dei vari deck che hanno duellato, appena dopo i messaggi e gli sticker
+    """
+    output = ""
+
+    filtered_matches = get_deck_matches(matches, deck1)
+    filtered_matches = filtered_matches[filtered_matches["opponent_name"]==deck2]
+
+    if len(filtered_matches)%5 == 0:
+        output += f"Questo è stato il {len(filtered_matches)}° duello tra i due deck."
+    
+    # Statistiche del deck1
+    stats_deck1 = ""
+        
+    filtered_matches_deck1_inverso = get_deck_matches(matches, deck1).sort_values("match_key", ascending = False)
+
+    vittorie_consecutive_deck1 = 0
+    sconfitte_consecutive_deck1 = 0
+    stop_vittorie = 0
+    stop_sconfitte = 0
+    for index, row in filtered_matches_deck1_inverso.iterrows():
+        if (row["win_flag"] == 1) and (stop_vittorie == 0): 
+            vittorie_consecutive_deck1 += 1
+        else: stop_vittorie = 1
+
+        if (row["win_flag"] == 0) and (stop_sconfitte == 0): 
+            sconfitte_consecutive_deck1 += 1
+        else: stop_sconfitte = 1
+
+    if vittorie_consecutive_deck1 % 2 == 0 and vittorie_consecutive_deck1 > 3: 
+        stats_deck1 += f"{vittorie_consecutive_deck1}^ vittoria consecutiva contro tutti i deck"
+    if sconfitte_consecutive_deck1 % 2 == 0 and sconfitte_consecutive_deck1 > 3: 
+        stats_deck1 += f"{sconfitte_consecutive_deck1}^ sconfitta consecutiva contro tutti i deck"
+        if sconfitte_consecutive_deck1 > 5:
+            telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck1}^ sconfitta consecutiva per {deck1} 😭", bot_id, chat_id)
+            telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
+
+    delta_posizioni = rank_deck1_post - rank_deck1_pre
+    if delta_posizioni < 0:
+        if stats_deck1 == "": 
+            stats_deck1 += f"▲ {abs(delta_posizioni)} posizioni guadagnate in classifica"
+        else: 
+            stats_deck1 += f"\n▲ {abs(delta_posizioni)} posizioni guadagnate in classifica"
+    elif delta_posizioni > 0: 
+        if stats_deck1 == "": 
+            stats_deck1 += f"▼ {abs(delta_posizioni)} posizioni perse in classifica"
+        else: 
+            stats_deck1 += f"\n▼ {abs(delta_posizioni)} posizioni perse in classifica"
+
+    if stats_deck1 != "": 
+        output += f"\n\n<b>{deck1}</b>\n"+stats_deck1
+    # # # # # # # # # # # # 
+
+    # Statistiche del deck2
+    stats_deck2 = ""
+        
+    filtered_matches_deck2_inverso = get_deck_matches(matches, deck2).sort_values("match_key", ascending = False)
+
+    vittorie_consecutive_deck2 = 0
+    sconfitte_consecutive_deck2 = 0
+    stop_vittorie = 0
+    stop_sconfitte = 0
+    for index, row in filtered_matches_deck2_inverso.iterrows():
+        if (row["win_flag"] == 1) and (stop_vittorie == 0): 
+            vittorie_consecutive_deck2 += 1
+        else: stop_vittorie = 1
+
+        if (row["win_flag"] == 0) and (stop_sconfitte == 0): 
+            sconfitte_consecutive_deck2 += 1
+        else: stop_sconfitte = 1
+
+    if vittorie_consecutive_deck2 % 2 == 0 and vittorie_consecutive_deck2 > 3: 
+        stats_deck2 += f"{vittorie_consecutive_deck2}^ vittoria consecutiva contro tutti i deck"
+    if sconfitte_consecutive_deck2 % 2 == 0 and sconfitte_consecutive_deck2 > 3: 
+        stats_deck2 += f"{sconfitte_consecutive_deck2}^ sconfitta consecutiva contro tutti i deck"
+        if sconfitte_consecutive_deck2 > 5:
+            telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck2}^ sconfitta consecutiva per {deck2} 😭", bot_id, chat_id)
+            telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
+    
+    delta_posizioni = rank_deck2_post - rank_deck2_pre
+    if delta_posizioni < 0:
+        if stats_deck2 == "": 
+            stats_deck2 += f"▲ {abs(delta_posizioni)} posizioni guadagnate in classifica"
+        else: 
+            stats_deck2 += f"\n▲ {abs(delta_posizioni)} posizioni guadagnate in classifica"
+    elif delta_posizioni > 0: 
+        if stats_deck2 == "": 
+            stats_deck2 += f"▼ {abs(delta_posizioni)} posizioni perse in classifica"
+        else: 
+            stats_deck2 += f"\n▼ {abs(delta_posizioni)} posizioni perse in classifica"
+
+    print(f"STATS DECK: {stats_deck2}")
+
+    if stats_deck2 != "": 
+        output += f"\n\n<b>{deck2}</b>\n"+stats_deck2
+    # # # # # # # # # # # # 
+    
+    return output
+
+
+
 def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_id, chat_id):
 
     if deck1 == deck2: 
@@ -315,6 +539,9 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
 
     elo_deck1 = get_deck_elo(deck1, lista_mazzi)
     elo_deck2 = get_deck_elo(deck2, lista_mazzi)
+
+    rank_deck1_pre = get_deck_rank(deck1, lista_mazzi.iloc[1:])
+    rank_deck2_pre = get_deck_rank(deck2, lista_mazzi.iloc[1:])
 
     if outcome=="1": win_flag_1 = 1
     else: win_flag_1 = 0
@@ -377,6 +604,8 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
 
     update_deck_elo(deck1, deck2, elo_after_1, elo_after_2, win_flag_1, win_flag_2, lista_mazzi)
     
+    rank_deck1_post = get_deck_rank(deck1, lista_mazzi.iloc[1:])
+    rank_deck2_post = get_deck_rank(deck2, lista_mazzi.iloc[1:])
 
 
     # Invio messaggio con duello eseguito:
@@ -392,7 +621,20 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
     
     # Eventi duello
     ## Sorpassi in classifica, Posizioni scese in classifica, 4^ vittoria consecutiva ...
-        
+
+    print(f"rank_pre_1: {rank_deck1_pre}")
+    print(f"rank_post_1: {rank_deck1_post}")
+    print(f"rank_pre_2: {rank_deck2_pre}")
+    print(f"rank_post_2: {rank_deck2_post}")
+
+
+    eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, lista_mazzi, bot_id, chat_id)
+    text_statistiche_duello = eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, bot_id, chat_id, matches, 
+                                                        rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post)
+    print(f"OUTPUT: {text_statistiche_duello}")
+    if text_statistiche_duello != "":
+        telegram_send_message(text_statistiche_duello, bot_id, chat_id)
+    # text_eventi_duello = eventi_duello_statistiche()
     # # # # # # # # # # # # 
 
 
@@ -685,6 +927,8 @@ def statistiche_mazzo(deck_name, deck_matches, mazzi):
 
 
 
-def get_deck_rank(deck_name, ):
-    return True
+def get_deck_rank(deck_name, lista_mazzi):
+    lista_mazzi_ordered = lista_mazzi.sort_values(by="elo", ascending=False).reset_index()
+    rank = lista_mazzi_ordered[lista_mazzi_ordered["deck_name"] == deck_name].index.tolist()[0] + 1
+    return rank
 

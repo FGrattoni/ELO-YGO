@@ -339,15 +339,17 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
     if num < 0.05:
         telegram_send_message("SEGNA BELTRA, SEGNA! 📝", bot_id, chat_id)
 
+    if vincitore == "Gabro":
+        if num < 0.1: 
+            telegram_send_message("BOM BAM GABRO! 💥", bot_id, chat_id) # 
+
     if mazzo_vincitore == "Nubiano":
         telegram_send_image("https://i.imgur.com/XWBvmX6.gif", bot_id, chat_id)
 
-    if  (mazzo_vincitore == "Obelisk") and (perdente == "Gabro"):
+    elif  (mazzo_vincitore == "Obelisk") and (perdente == "Gabro"):
         telegram_send_sticker("https://i.postimg.cc/wTZ17CRg/Gabro-obelisk.webp", bot_id, chat_id)
 
-    if mazzo_vincitore == "Skull servant":
-        num = random.random()
-        print(num)
+    elif mazzo_vincitore == "Skull servant":
         if num < 0.1: 
             telegram_send_sticker("https://i.postimg.cc/PJQNtvXP/Ok-Skull-Servant-2912951370-1.webp", bot_id, chat_id) # Skull servant OK
         elif num < 0.2: 
@@ -371,21 +373,11 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
         elif num < 0.999:
             telegram_send_sticker("https://i.postimg.cc/br0sRyJc/fgratt8-King-of-skeletons-on-a-mountains-of-skulls-playing-card-732470d5-f5ce-433e-ba13-9226d60c7592.webp", bot_id, chat_id) 
         
-    if mazzo_vincitore == "Dinosauro":
-        num = random.random()
-        print(num)
+    elif mazzo_vincitore == "Dinosauro":
         if num < 0.1: 
             telegram_send_sticker("https://i.postimg.cc/Y90bS0Sq/IMG-20211225-WA0004.webp", bot_id, chat_id) # 
 
-    if vincitore == "Gabro":
-        num = random.random()
-        print(num)
-        if num < 0.1: 
-            telegram_send_message("BOM BAM GABRO! 💥", bot_id, chat_id) # 
-
     if (deck1 == "Slifer" and deck2 == "Obelisk") or (deck1 == "Obelisk" and deck2 == "Slifer"):
-        num = random.random()
-        print(num)
         if num < 0.125: 
             telegram_send_sticker("https://i.postimg.cc/RFMxVVvq/Slifer-vs-Obelisk-1.webp", bot_id, chat_id) # 
         elif num < 0.25: 
@@ -404,8 +396,6 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
             telegram_send_sticker("https://i.postimg.cc/tJvjcQQJ/Slifer-vs-Obelisk-8.webp", bot_id, chat_id) # 
 
     elif mazzo_vincitore == "Slifer": 
-        num = random.random()
-        print(num)
         if num < 0.125: 
             telegram_send_sticker("https://i.postimg.cc/ZqvQ9bZJ/Slifer-1.webp", bot_id, chat_id) # 
         elif num < 0.25: 
@@ -415,7 +405,107 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
         elif num < 0.5:
             telegram_send_sticker("https://i.postimg.cc/pTN6zwXz/Slifer-4.webp", bot_id, chat_id) # 
 
+    elif mazzo_vincitore == "Obelisk": 
+        if num < 0.125: 
+            telegram_send_sticker("https://i.postimg.cc/KY46gd36/Obelisk.webp", bot_id, chat_id) # 
+        elif num < 0.25: 
+            telegram_send_sticker("https://i.postimg.cc/L8yd5H5k/Obelisk-2.webp", bot_id, chat_id) # 
+        elif num < 0.375:
+            telegram_send_sticker("https://i.postimg.cc/dVQPJ7st/Obelisk-1.webp", bot_id, chat_id) # 
 
+    elif mazzo_vincitore == "Dinowrestler": 
+        if num < 0.1: 
+            telegram_send_sticker("https://i.postimg.cc/xTD9VTNc/Dinowrestler-1.webp", bot_id, chat_id) # 
+        elif num < 0.2: 
+            telegram_send_sticker("https://i.postimg.cc/NGrQnrM3/Dinowrestler-1-1.webp", bot_id, chat_id) # 
+        elif num < 0.3:
+            telegram_send_sticker("https://i.postimg.cc/4N6sfkpw/Dinowrestler-2.webp", bot_id, chat_id) # 
+        elif num < 0.4:
+            telegram_send_sticker("https://i.postimg.cc/T3TGh79x/Dinowrestler-3.webp", bot_id, chat_id) # 
+        elif num < 0.5:
+            telegram_send_sticker("https://i.postimg.cc/RFWv4WTn/Dinowrestler-4.webp", bot_id, chat_id) # 
+
+    elif (deck1 == "Drago bianco" and deck2 == "Potere del Mago Nero") or (deck1 == "Potere del Mago Nero" and deck2 == "Drago bianco"):
+        if num < 0.2: 
+            telegram_send_sticker("https://i.postimg.cc/NGTwDqCY/Mago-Nero-VS-Drago-Bianco-1.webp", bot_id, chat_id) # 
+        elif num < 0.4: 
+            telegram_send_sticker("https://i.postimg.cc/xCNVBW0v/Mago-Nero-VS-Drago-Bianco-1-1.webp", bot_id, chat_id) # 
+        elif num < 0.6:
+            telegram_send_sticker("https://i.postimg.cc/VNVcGYcs/Mago-Nero-VS-Drago-Bianco-2.webp", bot_id, chat_id) # 
+        elif num < 0.8:
+            telegram_send_sticker("https://i.postimg.cc/d3McF41z/Mago-Nero-VS-Drago-Bianco-3.webp", bot_id, chat_id) # 
+        elif num < 0.9999:
+            telegram_send_sticker("https://i.postimg.cc/6qdJpn4T/Mago-Nero-VS-Drago-Bianco-5.webp", bot_id, chat_id) # 
+
+    elif mazzo_vincitore == "Drago bianco": 
+        if num < 0.1: 
+            telegram_send_sticker("https://i.postimg.cc/bJ4pJq6V/Drago-Bianco-1.webp", bot_id, chat_id) # 
+        elif num < 0.2: 
+            telegram_send_sticker("https://i.postimg.cc/hvxgQN6D/Drago-Bianco-2.webp", bot_id, chat_id) # 
+        elif num < 0.3:
+            telegram_send_sticker("https://i.postimg.cc/8PH9X1R8/Drago-Bianco-3.webp", bot_id, chat_id) # 
+        elif num < 0.4:
+            telegram_send_sticker("https://i.postimg.cc/RZZ8jjdW/Drago-Bianco-4.webp", bot_id, chat_id) # 
+        elif num < 0.5:
+            telegram_send_sticker("https://i.postimg.cc/cJsq4vdL/Drago-Bianco-5.webp", bot_id, chat_id) # 
+        elif num < 0.6:
+            telegram_send_sticker("https://i.postimg.cc/s2KkB329/Drago-Bianco-6.webp", bot_id, chat_id) # 
+
+    elif mazzo_vincitore == "Potere del Mago Nero": 
+        if num < 0.1: 
+            telegram_send_sticker("https://i.postimg.cc/8C5Sm79n/Mago-Nero.webp", bot_id, chat_id) # 
+        elif num < 0.2: 
+            telegram_send_sticker("https://i.postimg.cc/BZ2dD5tn/Mago-Nero-2.webp", bot_id, chat_id) # 
+        elif num < 0.3:
+            telegram_send_sticker("https://i.postimg.cc/3J7zZyDC/Mago-Nero-2.webp", bot_id, chat_id) # 
+        elif num < 0.4:
+            telegram_send_sticker("https://i.postimg.cc/sgKzWY6h/Mago-Nero-1.webp", bot_id, chat_id) # 
+
+    elif mazzo_vincitore == "Jinzo-Terror": 
+        if num < 0.1: 
+            telegram_send_sticker("https://i.postimg.cc/L4r843w4/Jinzo-1.webp", bot_id, chat_id) # 
+        elif num < 0.2: 
+            telegram_send_sticker("https://i.postimg.cc/sXXt7bQF/Jinzo-1-1.webp", bot_id, chat_id) # 
+        elif num < 0.3:
+            telegram_send_sticker("https://i.postimg.cc/T15FHmJC/Jinzo-2.webp", bot_id, chat_id) # 
+        elif num < 0.4:
+            telegram_send_sticker("https://i.postimg.cc/KcKYyH9s/Jinzo-3.webp", bot_id, chat_id) # 
+
+    elif mazzo_vincitore == "Karakuri": 
+        if num < 0.1:
+            telegram_send_sticker("https://i.postimg.cc/fLr1K5mV/Karakuri-1-1.webp", bot_id, chat_id) # 
+        elif num < 0.2: 
+            telegram_send_sticker("https://i.postimg.cc/YC72YqtJ/Karakuri-2.webp", bot_id, chat_id) # 
+        elif num < 0.3:
+            telegram_send_sticker("https://i.postimg.cc/hPTPX7RL/Karakuri-2-1.webp", bot_id, chat_id) # 
+        elif num < 0.4:
+            telegram_send_sticker("https://i.postimg.cc/Qdq8bGtV/Karakuri-3.webp", bot_id, chat_id) # 
+        elif num < 0.5:
+            telegram_send_sticker("https://i.postimg.cc/W4b2YWF8/Karakuri-4.webp", bot_id, chat_id) # 
+        elif num < 0.6:
+            telegram_send_sticker("https://i.postimg.cc/Jh6RfNjL/Karakuri-5.webp", bot_id, chat_id) # 
+        elif num < 0.7:
+            telegram_send_sticker("https://i.postimg.cc/6qxggqbK/Karakuri-6.webp", bot_id, chat_id) # 
+        elif num < 0.8:
+            telegram_send_sticker("https://i.postimg.cc/Y0NZH7TW/Karakuri-7.webp", bot_id, chat_id) # 
+        elif num < 0.9:
+            telegram_send_sticker("https://i.postimg.cc/3WMVMRL7/Karakuri-1.webp", bot_id, chat_id) # 
+
+    elif mazzo_vincitore == "Montgomery Burn": 
+        if num < 0.1:
+            telegram_send_sticker("https://i.postimg.cc/rFk2Yn74/Montgomery-Burns.webp", bot_id, chat_id) # 
+        elif num < 0.2:
+            telegram_send_sticker("https://i.postimg.cc/PJVMwrpZ/Montgomery-Burns-1.webp", bot_id, chat_id) # 
+        elif num < 0.3:
+            telegram_send_sticker("https://i.postimg.cc/GtmQts2d/Montgomery-Burns-2.webp", bot_id, chat_id) # 
+        elif num < 0.4:
+            telegram_send_sticker("https://i.postimg.cc/bYmgMLCJ/Montgomery-Burns-3.webp", bot_id, chat_id) # 
+
+    elif mazzo_vincitore == "Samurai EVO": 
+        if num < 0.15:
+            telegram_send_sticker("https://i.postimg.cc/Zqg1PVrC/Sei-Samurai-1.webp", bot_id, chat_id) # 
+        elif num < 0.3:
+            telegram_send_sticker("https://i.postimg.cc/9M7sLZp1/Sei-Samurai-2.webp", bot_id, chat_id) # 
 
 
     return True

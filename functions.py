@@ -533,8 +533,18 @@ def eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo
     filtered_matches = get_deck_matches(matches, deck1)
     filtered_matches = filtered_matches[filtered_matches["opponent_name"]==deck2]
 
-    if len(filtered_matches)%5 == 0:
-        output += f"\n\nQuesto è stato il {len(filtered_matches)}° duello tra i due deck."
+    num_duelli = len(filtered_matches)
+    num_vittorie_deck1 = sum(filtered_matches["win_flag"])
+    perc_vittorie_deck_1_round = int(round(num_vittorie_deck1 / num_duelli * 10, 0))
+    output += "\n"
+    for i in range(perc_vittorie_deck_1_round):
+        output += "▰"
+    for i in range(10 - perc_vittorie_deck_1_round):
+        output += "▱"
+    output += f" ({num_duelli})"   
+
+    if num_duelli%5 == 0:
+        output += f"\n\nQuesto è stato il {num_duelli}° duello tra i due deck."
     
     # Statistiche del deck1
     stats_deck1 = ""
@@ -642,7 +652,7 @@ def telegram_duello_message(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_d
     else: 
         message = deck1 + outcome_2 + pointer + "<b> " + deck2 + "</b>" + "\n" 
         message = message + str(elo_after_1) + " (▼ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▲ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
-    
+
     message += eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, bot_id, chat_id, matches, 
                                          rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post)
     

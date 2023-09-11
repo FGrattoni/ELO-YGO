@@ -66,26 +66,7 @@ def telegram_send_sticker(sticker_ID, bot_id, chat_id):
     url_req = "https://api.telegram.org/bot"+bot_id+"/sendSticker?chat_id="+chat_id+"&sticker="+sticker_ID
     requests.get(url_req)
     return True
-
-
-
-def telegram_duello_message(deck_1, deck_2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, emoji_flag = True):
-    outcome_1, outcome_2, pointer = (" - ", " - ", "")
-    if emoji_flag:
-        outcome_1 = " ✅ - ❌ "
-        outcome_2 = " ❌ - ✅ "
-    else: 
-        pointer = "⯈"
-
-    message = ""
-    if outcome == "1":
-        message = pointer + "<b> " + deck_1 + "</b>" + outcome_1 + deck_2 + "\n"
-        message = message + str(elo_after_1) + " (▲ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▼ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
-    else: 
-        message = deck_1 + outcome_2 + pointer + "<b> " + deck_2 + "</b>" + "\n" 
-        message = message + str(elo_after_1) + " (▼ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▲ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
-    return message
-#  ❌ - ✅ 
+ 
 
 
 #ELO calculation functions
@@ -314,7 +295,7 @@ def get_deck_matches(matches, deck):
 
 
 
-def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, lista_mazzi, bot_id, chat_id):
+def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, lista_mazzi, bot_id, chat_id, matches):
     """ Funzione che manda un messaggio, appena dopo le informazioni del duello.
     Possono essere mandati sticker, con sent_telegram_sticker(), oppure messaggi.
     """
@@ -328,14 +309,38 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
         mazzo_vincitore = deck2
         perdente = lista_mazzi.loc[lista_mazzi["deck_name"] == deck1, "owner"].iloc[0]
         mazzo_perdente = deck1
-    
-    print(f"Vincitore = {vincitore}")
-    print(f"mazzo_vincitore = {mazzo_vincitore}")
-    print(f"perdente = {perdente}")
-    print(f'perdente == "Gabro" = {perdente == "Gabro"}')
-    print(f'mazzo_vincitore == "Obelisk" = {mazzo_vincitore == "Obelisk"}')
+            
+    ## STICKER SCONFITTE CONSECUTIVE
+    # "Stop, he's already dead!"
+
+    filtered_matches_deck1_inverso = get_deck_matches(matches, deck1).sort_values("match_key", ascending = False)
+    sconfitte_consecutive_deck1 = 0
+    stop_sconfitte = 0
+    for index, row in filtered_matches_deck1_inverso.iterrows():
+        if (row["win_flag"] == 0) and (stop_sconfitte == 0): 
+            sconfitte_consecutive_deck1 += 1
+        else: stop_sconfitte = 1
+    if sconfitte_consecutive_deck1 > 5 and sconfitte_consecutive_deck1 % 2 == 0:
+        telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck1}^ sconfitta consecutiva per {deck1} 😭", bot_id, chat_id)
+        telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
+
+    filtered_matches_deck2_inverso = get_deck_matches(matches, deck2).sort_values("match_key", ascending = False)
+    sconfitte_consecutive_deck2 = 0
+    stop_sconfitte = 0
+    for index, row in filtered_matches_deck2_inverso.iterrows():
+        if (row["win_flag"] == 0) and (stop_sconfitte == 0): 
+            sconfitte_consecutive_deck2 += 1
+        else: stop_sconfitte = 1
+    if sconfitte_consecutive_deck2 > 5 and sconfitte_consecutive_deck2 % 2 == 0:
+        telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck2}^ sconfitta consecutiva per <br>{deck2}</br> 😭", bot_id, chat_id)
+        telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
+
+    # # # # # #
+
+    print(f"sconfitte_consecutive_deck1: {sconfitte_consecutive_deck1}")
 
     num = random.random()
+    print(f"num: {num}")
     if num < 0.05:
         telegram_send_message("SEGNA BELTRA, SEGNA! 📝", bot_id, chat_id)
 
@@ -507,6 +512,13 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
         elif num < 0.3:
             telegram_send_sticker("https://i.postimg.cc/9M7sLZp1/Sei-Samurai-2.webp", bot_id, chat_id) # 
 
+    elif mazzo_vincitore == "Predaplant": 
+        if num < 0.15:
+            telegram_send_sticker("https://i.postimg.cc/SQZH63dx/Predaplant.webp", bot_id, chat_id) # 
+        elif num < 0.3:
+            telegram_send_sticker("https://i.postimg.cc/Rhb8vJhH/Predaplant-2.webp", bot_id, chat_id) # 
+        elif num < 0.4:
+            telegram_send_sticker("https://i.postimg.cc/WbhCX8Y6/Predaplant-1.webp", bot_id, chat_id) # 
 
     return True
 
@@ -514,7 +526,7 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
 
 def eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, bot_id, chat_id, matches, 
                               rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post):
-    """Funzione che manda le statistiche dei vari deck che hanno duellato, appena dopo i messaggi e gli sticker
+    """Funzione che crea una stringa con tutte le statistiche del duello.
     """
     output = ""
 
@@ -522,7 +534,7 @@ def eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo
     filtered_matches = filtered_matches[filtered_matches["opponent_name"]==deck2]
 
     if len(filtered_matches)%5 == 0:
-        output += f"Questo è stato il {len(filtered_matches)}° duello tra i due deck."
+        output += f"\n\nQuesto è stato il {len(filtered_matches)}° duello tra i due deck."
     
     # Statistiche del deck1
     stats_deck1 = ""
@@ -588,9 +600,9 @@ def eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo
         stats_deck2 += f"{vittorie_consecutive_deck2}^ vittoria consecutiva contro tutti i deck"
     if sconfitte_consecutive_deck2 % 2 == 0 and sconfitte_consecutive_deck2 > 3: 
         stats_deck2 += f"{sconfitte_consecutive_deck2}^ sconfitta consecutiva contro tutti i deck"
-        if sconfitte_consecutive_deck2 > 5:
-            telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck2}^ sconfitta consecutiva per {deck2} 😭", bot_id, chat_id)
-            telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
+        # if sconfitte_consecutive_deck2 > 5:
+        #     telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck2}^ sconfitta consecutiva per {deck2} 😭", bot_id, chat_id)
+        #     telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
     
     delta_posizioni = rank_deck2_post - rank_deck2_pre
     if delta_posizioni < 0:
@@ -611,6 +623,31 @@ def eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo
     # # # # # # # # # # # # 
     
     return output
+
+
+
+def telegram_duello_message(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, 
+                            bot_id, chat_id, matches, rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post, emoji_flag=True):
+    outcome_1, outcome_2, pointer = (" - ", " - ", "")
+    if emoji_flag:
+        outcome_1 = " ✅ - ❌ "
+        outcome_2 = " ❌ - ✅ "
+    else: 
+        pointer = "⯈"
+
+    message = ""
+    if outcome == "1":
+        message = pointer + "<b> " + deck1 + "</b>" + outcome_1 + deck2 + "\n"
+        message = message + str(elo_after_1) + " (▲ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▼ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
+    else: 
+        message = deck1 + outcome_2 + pointer + "<b> " + deck2 + "</b>" + "\n" 
+        message = message + str(elo_after_1) + " (▼ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▲ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
+    
+    message += eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, bot_id, chat_id, matches, 
+                                         rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post)
+    
+    return message
+#  ❌ - ✅
 
 
 
@@ -703,28 +740,14 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
         telegram_duello_message(
             deck1, deck2, outcome, 
             elo_deck1, elo_after_1, 
-            elo_deck2, elo_after_2, 
-            True), 
+            elo_deck2, elo_after_2,  
+            bot_id, chat_id, matches, 
+            rank_deck1_pre, rank_deck2_pre, 
+            rank_deck1_post, rank_deck2_post,
+            emoji_flag=True), 
         bot_id, chat_id)
-    # # # # # # # # # # # # 
 
-    
-    # Eventi duello
-    ## Sorpassi in classifica, Posizioni scese in classifica, 4^ vittoria consecutiva ...
-
-    print(f"rank_pre_1: {rank_deck1_pre}")
-    print(f"rank_post_1: {rank_deck1_post}")
-    print(f"rank_pre_2: {rank_deck2_pre}")
-    print(f"rank_post_2: {rank_deck2_post}")
-
-
-    eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, lista_mazzi, bot_id, chat_id)
-    text_statistiche_duello = eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, bot_id, chat_id, matches, 
-                                                        rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post)
-    print(f"OUTPUT: {text_statistiche_duello}")
-    if text_statistiche_duello != "":
-        telegram_send_message(text_statistiche_duello, bot_id, chat_id)
-    # text_eventi_duello = eventi_duello_statistiche()
+    eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, lista_mazzi, bot_id, chat_id, matches)
     # # # # # # # # # # # # 
 
 

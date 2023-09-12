@@ -21,3 +21,4 @@ with st.form(key = 'confronta_mazzi'):
 if button_confronta_mazzi:
     statistiche_duelli(deck_1, deck_2, matches)
     print_duelli(filter_matches(matches, deck_1, deck_2))
+    plot_duelli_tra_due_mazzi(matches, deck_1, deck_2)

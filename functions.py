@@ -940,10 +940,13 @@ def plot_distribuzione_mazzi(lista_mazzi):
 
 
 def plot_numero_duelli_mazzi(classifica, matches): 
-    """ Altair barplot to plot the number of duels for each deck"""
+    """ Altair barplot to plot the number of duels for each deck
+    Used in:
+    - Classifica"""
     # numero_duelli = pd.DataFrame(matches.groupby(["deck_name"])["deck_name"].count())
     # print(numero_duelli)
     # print(type(numero_duelli))
+    #
 
     lista_duelli_mazzo = []
     for mazzo in classifica["Nome deck"]:
@@ -971,6 +974,63 @@ def plot_numero_duelli_mazzi(classifica, matches):
 
     # (numero_duelli + text).properties(height=900)
     st.altair_chart(numero_duelli + text)
+    return True
+
+
+
+def plot_duelli_tra_due_mazzi(matches, deck1, deck2):
+    """ Plot la distribuzione dei duelli nel tempo, e i duelli tra i due mazzi selezionati. 
+    Plot sviluppato in matplotlib e seaborn
+    Utilizzato in:
+    - Confronta Mazzi
+    """
+    matches_plot = matches.copy()
+    matches_plot['date'] = pd.to_datetime(matches['date'], format='%d/%m/%Y')
+    
+    filtered_matches = get_deck_matches(matches, deck1)
+    filtered_matches = filtered_matches[filtered_matches["opponent_name"]==deck2]
+    filtered_matches['date'] = pd.to_datetime(filtered_matches['date'], format='%d/%m/%Y')
+
+    # Find the minimum and maximum dates
+    min_date = matches_plot['date'].min()
+    max_date = matches_plot['date'].max()
+
+    # Set a dark background style for seaborn
+    sns.set_style("darkgrid",  {"axes.axisbelow": False, "axes.grid": False})
+
+    # Create a figure and primary axis (for the KDE plot)
+    fig, ax1 = plt.subplots(figsize=(9, 4), facecolor='#0e1117')
+    # Create a KDE plot using seaborn on the primary axis
+    sns.kdeplot(data=matches_plot, x='date', shade=True, ax=ax1, label='Andamento duelli totali nel tempo')
+    ax1.set_xlabel('')
+    ax1.set_ylabel('')
+    # Set x-axis limits to the minimum and maximum dates
+    ax1.set_xlim(min_date, max_date)
+
+    # Create a secondary y-axis for the histogram
+    ax2 = ax1.twinx()
+    # Create a histogram on the secondary axis
+    sns.histplot(data=filtered_matches, x='date', bins=30, ax=ax2, color='red', alpha=0.5, element='step', label='Duelli tra i due deck')
+    ax2.set_ylabel('')
+    ax2.set_yticks(range(int(ax2.get_yticks().min()), int(ax2.get_yticks().max()) + 1))
+
+    ax1.xaxis.label.set_color('lightgray')
+    ax1.yaxis.label.set_color('lightgray')
+    ax2.yaxis.label.set_color('lightgray')
+    ax1.tick_params(axis='both', colors='lightgray')
+    ax2.tick_params(axis='y', colors='lightgray')
+
+    ax1.legend(loc='upper left', frameon=False)
+    ax2.legend(loc='upper right', frameon=False)    
+
+    ax1.set_title(' ')
+    caption_text = f"Distribuzione dei duelli tra {deck1} e {deck2}"
+    plt.figtext(0.5, 0.01, caption_text, ha='center', fontsize=10, color='lightgray')
+
+    # plt.show()
+
+    st.pyplot(fig)
+
     return True
 
 

@@ -520,6 +520,12 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
         elif num < 0.4:
             telegram_send_sticker("https://i.postimg.cc/WbhCX8Y6/Predaplant-1.webp", bot_id, chat_id) # 
 
+    elif mazzo_vincitore == "Zombie": 
+        if num < 0.15:
+            telegram_send_sticker("https://i.postimg.cc/wT89Qv4B/Zombie-Beltra.webp", bot_id, chat_id) # 
+
+
+
     return True
 
 
@@ -983,6 +989,8 @@ def plot_duelli_tra_due_mazzi(matches, deck1, deck2):
     Plot sviluppato in matplotlib e seaborn
     Utilizzato in:
     - Confronta Mazzi
+
+    https://imgur.com/nSpEZO7
     """
     matches_plot = matches.copy()
     matches_plot['date'] = pd.to_datetime(matches['date'], format='%d/%m/%Y')

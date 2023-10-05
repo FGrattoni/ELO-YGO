@@ -69,7 +69,7 @@ scope = ["https://www.googleapis.com/auth/spreadsheets",
 credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"], scopes = scope )
 client = Client(scope=scope, creds=credentials)
-spreadsheetname = "Copy of ELO db" 
+spreadsheetname = st.secrets["google_sheets_name"] 
 spread = Spread(spreadsheetname, client = client)
 
 # Check if the connection is established
@@ -77,9 +77,6 @@ spread = Spread(spreadsheetname, client = client)
 sh = client.open(spreadsheetname)
 #     worksheet_list = sh.worksheets()
 #     st.write(worksheet_list)
-
-
-
 
 
 # DOWNLOAD THE DATA
@@ -105,7 +102,8 @@ st.session_state['tournaments'] = tournaments
 ### APP ########################
 
 #st.markdown("# YGO ELO app")
-st.image("./YGMEME_title_2.png")
+st.image("./YGMEME_title.jpg")
+
 
 ################################
 # SEZIONE: "Debug"

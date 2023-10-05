@@ -1,3 +1,4 @@
+
 #from functools import cache
 #from json import load
 #from os import write
@@ -1418,7 +1419,6 @@ if pagina_selezionata == "🛒 Cardmarket":
 #         output = output + "  \n"
 #     with st.expander("Classifica aggiornata dopo la serata:"):
 #         st.markdown(output, unsafe_allow_html=True)
-
 
 
 

@@ -20,7 +20,7 @@ scope = ["https://www.googleapis.com/auth/spreadsheets",
 credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"], scopes = scope )
 client = Client(scope=scope, creds=credentials)
-spreadsheetname = "Copy of ELO db" 
+spreadsheetname = st.secrets["google_sheets_name"]
 spread = Spread(spreadsheetname, client = client)
 
 # Check if the connection is established
@@ -1042,6 +1042,35 @@ def plot_duelli_tra_due_mazzi(matches, deck1, deck2):
     return True
 
 
+
+def send_distribuzione(lista_mazzi):
+    lista_mazzi_plot = lista_mazzi[pd.isna(lista_mazzi["deck_name"]) == False].sort_values(by="category_order").copy()
+    lista_mazzi_plot = lista_mazzi_plot[["deck_category", "elo", "category_order"]]
+    lista_mazzi_plot_copia = lista_mazzi_plot[["deck_category", "elo", "category_order"]].copy()
+    lista_mazzi_plot_copia["deck_category"] = "All"
+    lista_mazzi_plot_copia["category_order"] = 6
+    lista_mazzi_plot = pd.concat([lista_mazzi_plot, lista_mazzi_plot_copia]).reset_index()
+
+    categorie = lista_mazzi_plot[["deck_category", "category_order"]].drop_duplicates().sort_values(by="category_order", ascending=False)
+    categorie = categorie["deck_category"]
+
+    # Set a dark background style
+    sns.set(style="darkgrid")
+
+    # Create a density plot using seaborn with counts on the y-axis
+    plt.figure(figsize=(10, 6))
+    sns.kdeplot(data=lista_mazzi_plot, x='elo', hue='deck_category', fill=True, common_norm=True, label=categorie)
+
+
+    # Customize labels and title
+    plt.xlabel('Elo')
+    # plt.ylabel('')
+    # plt.title('Density Plot with Different Categories (Count on Y-axis)')
+
+    # Adjust the legend
+    plt.legend(title='Categoria Deck', labels=categorie)
+
+    
 
 ######## STATISTICHE SECTION ######################
 

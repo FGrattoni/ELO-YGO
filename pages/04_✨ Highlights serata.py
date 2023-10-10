@@ -79,7 +79,7 @@ if button_highlights:
     lista_mazzi['delta_posizione_classifica']   = delta_posizione_classifica
 
     st.markdown("")
-    st.markdown(f"Numero di duelli nella serata: **{sum(lista_mazzi['duelli_serata'])/2}**")
+    st.markdown(f"Numero di duelli nella serata: **{int(sum(lista_mazzi['duelli_serata'])/2)}**")
 
     # TOP della serata
     st.markdown("### 😎 Top deck della serata")

@@ -349,7 +349,7 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
             telegram_send_message("BOM BAM GABRO! 💥", bot_id, chat_id) # 
 
     if mazzo_vincitore == "Nubiano":
-        telegram_send_image("https://i.imgur.com/XWBvmX6.gif", bot_id, chat_id)
+        telegram_send_image("https://i.postimg.cc/GmDHYXvY/Nubiano-meme.webp", bot_id, chat_id)
 
     elif  (mazzo_vincitore == "Obelisk") and (perdente == "Gabro"):
         telegram_send_sticker("https://i.postimg.cc/wTZ17CRg/Gabro-obelisk.webp", bot_id, chat_id)

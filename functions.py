@@ -524,6 +524,10 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
         if num < 0.15:
             telegram_send_sticker("https://i.postimg.cc/wT89Qv4B/Zombie-Beltra.webp", bot_id, chat_id) # 
 
+    elif mazzo_vincitore == "Dante": 
+        if num < 0.15: 
+            telegram_send_sticker("https://i.postimg.cc/N0tL7rGr/dante-clipdrop-background-removal.webp", bot_id, chat_id)
+
 
 
     return True

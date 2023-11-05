@@ -7,9 +7,9 @@ print(lista_mazzi)
 ################################
 # PAGINA: "Classifiche"
 st.markdown("## 🏆 Classifica deck")
-classifica = lista_mazzi.iloc[1:,0:9].copy()
+classifica = lista_mazzi.iloc[1:,0:11].copy()
 classifica = classifica.astype({"elo": int})
-classifica.columns = ["# Cat.", "Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note"]
+classifica.columns = ["# Cat.", "Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note", "Vittorie torneo", "Esclusione classifica"]
 classifica.sort_values(by = ['Elo'], inplace=True, ascending=False)
 classifica = classifica.reset_index()
 output = ""
@@ -19,7 +19,12 @@ for deck in classifica["Nome deck"]:
     if posizione == 2: output = output + "🥈 "
     if posizione == 3: output = output + "🥉 "
     if posizione == len(classifica): output = output + "🥄 "
-    output = output + f"**{posizione}** - {deck} - {classifica['Elo'][posizione-1]}  \n"
+    output = output + f"**{posizione}** - {deck} - {classifica['Elo'][posizione-1]} "
+    if classifica['Vittorie torneo'][posizione-1] > 0:
+        output = output + f" {classifica['Vittorie torneo'][posizione-1]*'🏆'}  \n"
+    else:
+        output = output + f" \n"
+
     posizione += 1
 st.markdown(output)
 

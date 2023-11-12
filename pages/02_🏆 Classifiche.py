@@ -10,6 +10,7 @@ st.markdown("## 🏆 Classifica deck")
 classifica = lista_mazzi.iloc[1:,0:11].copy()
 classifica = classifica.astype({"elo": int})
 classifica.columns = ["# Cat.", "Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note", "Vittorie torneo", "Esclusione classifica"]
+classifica = classifica[classifica["Esclusione classifica"] != "escluso"]
 classifica.sort_values(by = ['Elo'], inplace=True, ascending=False)
 classifica = classifica.reset_index()
 output = ""

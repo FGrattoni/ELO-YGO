@@ -160,6 +160,12 @@ if not button_insert_match:
 if button_insert_match:
     
     matches, lista_mazzi, tournaments = download_data()
+
+    outcome = insert_match2(matches, deck_1, deck_2, outcome1, outcome2, outcome3, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
+    if outcome == True:
+            st.success("Duello inserito correttamente a sistema")
+            
+    """
     outcome = insert_match2(matches, deck_1, deck_2, outcome1, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
     if outcome == True:
         st.success("Duello inserito correttamente a sistema")
@@ -175,7 +181,7 @@ if button_insert_match:
         outcome = insert_match2(matches, deck_1, deck_2, outcome3, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
         if outcome == True:
             st.success("Terzo duello inserito correttamente a sistema")
-
+    """
 
 
 

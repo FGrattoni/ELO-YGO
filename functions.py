@@ -642,7 +642,9 @@ def eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo
 
 
 
-def telegram_duello_message(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, 
+def telegram_duello_message(deck1, deck2, outcome1, outcome2, outcome3, outcome_finale,
+                            elo_deck1, elo_after_1, elo_after_1_2, elo_after_1_3,
+                            elo_deck2, elo_after_2, elo_after_2_2, elo_after_2_3,
                             bot_id, chat_id, matches, rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post, emoji_flag=True):
     outcome_1, outcome_2, pointer = (" - ", " - ", "")
     if emoji_flag:
@@ -652,22 +654,45 @@ def telegram_duello_message(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_d
         pointer = "⯈"
 
     message = ""
-    if outcome == "1":
-        message = pointer + "<b> " + deck1 + "</b>" + outcome_1 + deck2 + "\n"
-        message = message + str(elo_after_1) + " (▲ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▼ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
+    if outcome1 == "1":
+        message = pointer + "<u>" + deck1 + "</u>" + outcome_1 + deck2 + "\n"
+        if outcome2 == "0":
+            message = message + str(elo_after_1) + " (▲ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▼ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
     else: 
-        message = deck1 + outcome_2 + pointer + "<b> " + deck2 + "</b>" + "\n" 
-        message = message + str(elo_after_1) + " (▼ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▲ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
+        message = deck1 + outcome_2 + pointer + "<u>" + deck2 + "</u>" + "\n" 
+        if outcome2 == "0":
+            message = message + str(elo_after_1) + " (▼ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▲ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
 
-    message += eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, bot_id, chat_id, matches, 
-                                         rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post)
+    if outcome2 != "0":
+        if outcome2 == "1":
+            message = message + pointer + "<u>" + deck1 + "</u>" + outcome_1 + deck2 + "\n"
+        else: 
+            message = message + deck1 + outcome_2 + pointer + "<u>" + deck2 + "</u>" + "\n"
+        if outcome3 == "0":
+            if elo_after_1_2 - elo_deck1 > 0: 
+                message = message + str(elo_after_1_2) + " (▲ " + str(round(elo_after_1_2 - elo_deck1, 1)) + ") - " + str(elo_after_2_2) + " (▼ " + str(round(elo_after_2_2 - elo_deck2, 1)) + ")" 
+            else: 
+                message = message + str(elo_after_1_2) + " (▼ " + str(round(elo_after_1_2 - elo_deck1, 1)) + ") - " + str(elo_after_2_2) + " (▲ " + str(round(elo_after_2_2 - elo_deck2, 1)) + ")" 
+
+    if outcome3 != "0":
+        if outcome3 == "1":
+            message = message + pointer + "<u>" + deck1 + "</u>" + outcome_1 + deck2 + "\n"
+        else: 
+            message = message + deck1 + outcome_2 + pointer + "<u>" + deck2 + "</u>" + "\n" 
+        if elo_after_1_3 - elo_deck1 > 0:
+            message = message + str(elo_after_1_3) + " (▲ " + str(round(elo_after_1_3 - elo_deck1, 1)) + ") - " + str(elo_after_2_3) + " (▼ " + str(round(elo_after_2_3 - elo_deck2, 1)) + ")" 
+        else:
+            message = message + str(elo_after_1_3) + " (▼ " + str(round(elo_after_1_3 - elo_deck1, 1)) + ") - " + str(elo_after_2_3) + " (▲ " + str(round(elo_after_2_3 - elo_deck2, 1)) + ")" 
+
+    message += eventi_duello_statistiche(deck1, deck2, outcome_finale, elo_deck1, elo_after_1, elo_deck2, elo_after_2, bot_id, chat_id, matches, 
+                                             rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post)
     
     return message
 #  ❌ - ✅
 
 
 
-def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_id, chat_id):
+def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournament, lista_mazzi, bot_id, chat_id):
 
     if deck1 == deck2: 
         st.error("Errore. Mazzo 1 e Mazzo 2 combaciano.")
@@ -679,6 +704,8 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
     time = str(datetime.now().strftime("%H:%M"))
 
     id_match = max(matches["id_match"]) + 1
+    id_match2 = max(matches["id_match"]) + 2
+    id_match3 = max(matches["id_match"]) + 3
 
     elo_deck1 = get_deck_elo(deck1, lista_mazzi)
     elo_deck2 = get_deck_elo(deck2, lista_mazzi)
@@ -686,7 +713,10 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
     rank_deck1_pre = get_deck_rank(deck1, lista_mazzi.iloc[1:])
     rank_deck2_pre = get_deck_rank(deck2, lista_mazzi.iloc[1:])
 
-    if outcome=="1": win_flag_1 = 1
+
+    ##### Duello 1
+
+    if outcome1=="1": win_flag_1 = 1
     else: win_flag_1 = 0
 
     elo_after_1 = elo_calculation(elo_deck1, elo_deck2, win_flag_1)
@@ -704,7 +734,7 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
         "id_tournament": [tournament]
     }
 
-    if outcome=="2": win_flag_2 = 1
+    if outcome1=="2": win_flag_2 = 1
     else: win_flag_2 = 0
 
     elo_after_2 = elo_calculation(elo_deck2, elo_deck1, win_flag_2)
@@ -735,6 +765,137 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
     data_list = pd.concat([data_list_1, data_list_2], axis=0)
     matches = matches.append(data_list, ignore_index=True)
 
+
+    ##### Duello 2
+    if outcome2 == "0":
+        elo_after_1_2 = 0
+        elo_after_2_2 = 0
+    if outcome2 != "0":
+        if outcome2=="1": win_flag_1 = 1
+        else: win_flag_1 = 0
+
+        elo_after_1_2 = elo_calculation(elo_after_1, elo_after_2, win_flag_1)
+
+        data_list_1 = {
+            "match_key": [10*id_match2+1],
+            "id_match": id_match2,
+            "deck_pos": [1], #fixed
+            "date": [date],
+            "time": [time],
+            "deck_name": [deck1],
+            "win_flag": [win_flag_1],
+            "elo_before": [elo_after_1],
+            "elo_after": [elo_after_1_2],
+            "id_tournament": [tournament]
+        }
+
+        if outcome2=="2": win_flag_2 = 1
+        else: win_flag_2 = 0
+
+        elo_after_2_2 = elo_calculation(elo_after_2, elo_after_1, win_flag_2)
+
+        data_list_2 = {
+            "match_key": [10*id_match2+ 2],
+            "id_match": id_match2,
+            "deck_pos": [2], # fixed
+            "date": [date],
+            "time": [time],
+            "deck_name": [deck2],
+            "win_flag": [win_flag_2],
+            "elo_before": [elo_after_2],
+            "elo_after": [elo_after_2_2],
+            "id_tournament": [tournament]
+        }
+
+        c1, c2  = st.columns((1, 1))
+
+        # ▲ ▼ 
+        with c1: 
+            display_change_elo(deck1, elo_after_1, elo_after_1_2)
+        with c2:
+            display_change_elo(deck2, elo_after_2, elo_after_2_2)
+
+        data_list_1 = pd.DataFrame(data_list_1)
+        data_list_2 = pd.DataFrame(data_list_2)
+        data_list = pd.concat([data_list_1, data_list_2], axis=0)
+        matches = matches.append(data_list, ignore_index=True)
+
+
+    ##### Duello 3
+    
+    if outcome3 == "0":
+        elo_after_1_3 = 0
+        elo_after_2_3 = 0
+    elif outcome3 != "0":
+        if outcome3=="1": win_flag_1 = 1
+        else: win_flag_1 = 0
+
+        elo_after_1_3 = elo_calculation(elo_after_1_2, elo_after_2_2, win_flag_1)
+
+        data_list_1 = {
+            "match_key": [10*id_match3+1],
+            "id_match": id_match3,
+            "deck_pos": [1], #fixed
+            "date": [date],
+            "time": [time],
+            "deck_name": [deck1],
+            "win_flag": [win_flag_1],
+            "elo_before": [elo_after_1_2],
+            "elo_after": [elo_after_1_3],
+            "id_tournament": [tournament]
+        }
+
+        if outcome3=="2": win_flag_2 = 1
+        else: win_flag_2 = 0
+
+        elo_after_2_3 = elo_calculation(elo_after_2_2, elo_after_1_2, win_flag_2)
+
+        data_list_2 = {
+            "match_key": [10*id_match3+2],
+            "id_match": id_match3,
+            "deck_pos": [2], # fixed
+            "date": [date],
+            "time": [time],
+            "deck_name": [deck2],
+            "win_flag": [win_flag_2],
+            "elo_before": [elo_after_2_2],
+            "elo_after": [elo_after_2_3],
+            "id_tournament": [tournament]
+        }
+
+        c1, c2  = st.columns((1, 1))
+
+        # ▲ ▼ 
+        with c1: 
+            display_change_elo(deck1, elo_after_1_2, elo_after_1_3)
+        with c2:
+            display_change_elo(deck2, elo_after_2_2, elo_after_2_3)
+
+        data_list_1 = pd.DataFrame(data_list_1)
+        data_list_2 = pd.DataFrame(data_list_2)
+        data_list = pd.concat([data_list_1, data_list_2], axis=0)
+        matches = matches.append(data_list, ignore_index=True)
+
+
+    ### creazione variabile outcome_finale
+
+    if outcome1 == "1" and outcome2 == "1": # outcome3 = 1, 2, 0 
+        outcome_finale = "1"
+    elif outcome1 == "2" and outcome2 == "2": 
+        outcome_finale = "2"
+    elif ((outcome1 == "1" and outcome2 == "2") or (outcome1 == "2" and outcome2 == "1")):
+        if outcome3 == "1":
+            outcome_finale = "1"
+        if outcome3 == "2":
+            outcome_finale = "2"
+        if outcome3 == "0":
+            outcome_finale = "0"
+    elif outcome1 == "1" and outcome2 == "0" and outcome3 == "0":
+        outcome_finale = "1"
+    elif outcome1 == "2" and outcome2 == "0" and outcome3 == "0":
+        outcome_finale = "2"
+
+
     # statistiche dei duelli tra i due deck
     statistiche_duelli(deck1, deck2, matches)
     # storico_duelli(deck1, deck2, matches)
@@ -754,19 +915,17 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
     # Invio messaggio con duello eseguito:
     telegram_send_message(
         telegram_duello_message(
-            deck1, deck2, outcome, 
-            elo_deck1, elo_after_1, 
-            elo_deck2, elo_after_2,  
+            deck1, deck2, outcome1, outcome2, outcome3, outcome_finale,
+            elo_deck1, elo_after_1, elo_after_1_2, elo_after_1_3,
+            elo_deck2, elo_after_2, elo_after_2_2, elo_after_2_3,
             bot_id, chat_id, matches, 
             rank_deck1_pre, rank_deck2_pre, 
             rank_deck1_post, rank_deck2_post,
             emoji_flag=True), 
         bot_id, chat_id)
 
-    eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, lista_mazzi, bot_id, chat_id, matches)
+    eventi_duello_messaggi(deck1, deck2, outcome_finale, elo_deck1, elo_after_1, elo_deck2, elo_after_2, lista_mazzi, bot_id, chat_id, matches)
     # # # # # # # # # # # # 
-
-
 
     return True
 

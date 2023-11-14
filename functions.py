@@ -254,13 +254,13 @@ def print_duelli(matches, condensed = False):
             deck_name2 = matches[(matches["id_match"] == id_match) & (matches["deck_pos"] == 2)].reset_index()
             deck_name2 = deck_name2.loc[0]["deck_name"]
             if win_flag_1 == 1: 
-                output = output + f'<font color={st.session_state["verde_elo"]}>' + deck_name1 + '</font>'
+                output = output + f'<font color={st.secrets["verde_elo"]}>' + deck_name1 + '</font>'
                 output = output + " - "
-                output = output + f'<font color={st.session_state["rosso_elo"]}>' + deck_name2 + '</font>  \n'
+                output = output + f'<font color={st.secrets["rosso_elo"]}>' + deck_name2 + '</font>  \n'
             else:
-                output = output + f'<font color={st.session_state["rosso_elo"]}>' + deck_name1 + '</font>'
+                output = output + f'<font color={st.secrets["rosso_elo"]}>' + deck_name1 + '</font>'
                 output = output + " - "
-                output = output + f'<font color={st.session_state["verde_elo"]}>' + deck_name2 + '</font>  \n'
+                output = output + f'<font color={st.secrets["verde_elo"]}>' + deck_name2 + '</font>  \n'
 
     st.markdown(output, unsafe_allow_html = True)
     return True
@@ -276,8 +276,8 @@ def output_info_mazzo_serata(lista_mazzi_selezionati):
     for index, row in lista_mazzi_selezionati.iterrows():
         output = output + f" ⬩ **{row['deck_name']}** - {row['duelli_serata']} duelli "
         output = output + f"({ int( (row['vittorie_serata'] / row['duelli_serata']) * 100) }%) ⬩ "
-        if int(row['delta_elo_serata']) > 0: output = output + f"<font color={st.session_state['verde_elo']}>+"
-        elif int(row['delta_elo_serata']) < 0: output = output + f"<font color={st.session_state['rosso_elo']}>"
+        if int(row['delta_elo_serata']) > 0: output = output + f"<font color={st.secrets['verde_elo']}>+"
+        elif int(row['delta_elo_serata']) < 0: output = output + f"<font color={st.secrets['rosso_elo']}>"
         else: f"<font>"
         output = output + f"{int(row['delta_elo_serata'])}</font> punti  \n"
     return output 

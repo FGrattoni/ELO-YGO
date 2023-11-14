@@ -27,8 +27,8 @@ import random
 chat_id = st.secrets["telegram"]['chat_id']
 bot_id = st.secrets["telegram"]['bot_id']
 
-st.session_state['verde_elo'] = "#00CC00"
-st.session_state['rosso_elo'] = "Red"
+# st.session_state['verde_elo'] = "#00CC00"
+# st.session_state['rosso_elo'] = "Red"
 
 
 # Streamlit CONFIGURATION settings

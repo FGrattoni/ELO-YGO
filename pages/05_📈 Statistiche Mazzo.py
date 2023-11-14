@@ -14,7 +14,7 @@ matches = pd.read_csv(st.secrets["gsheet_url_matches"])
 with st.form(key = 'statistiche_mazzo'):
     st.subheader("Seleziona il mazzo di cui avere le statistiche")
     st.write("Lasciare vuoto per avere statistiche per ogni mazzo")
-    deck_list = st.multiselect("Mazzo: ", lista_mazzi["deck_name"], index=None)
+    deck_list = st.multiselect("Mazzo: ", lista_mazzi["deck_name"])
     button_statistiche_mazzo = st.form_submit_button("Ottieni le statistiche")
 
 if button_statistiche_mazzo:

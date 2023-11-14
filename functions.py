@@ -154,7 +154,24 @@ def update_deck_elo(deck_name1, deck_name2, elo_updated1, elo_updated2,
             v = lista_mazzi.loc[i, "vinte"]
             p = lista_mazzi.loc[i, "perse"]
             lista_mazzi.loc[i, "percentage"] = v / (v + p)        
-    spread.df_to_sheet(lista_mazzi, sheet = "mazzi", index = False)
+
+    # st.write(lista_mazzi)
+
+    # st.write(lista_mazzi.iloc[0, :])
+    # st.write(lista_mazzi.iloc[1:, :].sort_values(by = "elo", ascending = False))
+
+    # prova = pd.concat([lista_mazzi.iloc[0,:] , st.write(lista_mazzi.iloc[1:, :].sort_values(by = "elo", ascending = False))], axis=1)
+
+    prova = lista_mazzi
+    prova['elo'] = pd.to_numeric(prova['elo'], errors='coerce')
+    st.write(prova)
+    prova = prova.sort_values(by='elo', ascending = False, na_position='first')
+    st.write(prova)
+    prova = prova.reset_index(drop=True)
+
+    st.write(prova)
+
+    spread.df_to_sheet(prova, sheet = "mazzi", index = False)
 
     return True
 

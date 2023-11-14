@@ -1,13 +1,15 @@
 from functions import *
 
-matches = st.session_state['matches']
-lista_mazzi = st.session_state['lista_mazzi']
+# lista_mazzi = st.session_state['lista_mazzi']
 
-# lista_mazzi = pd.read_csv("https://docs.google.com/spreadsheets/d/1OqErPk_bxqE40wShGgiobY68JD2F5oEh3LewWh-3hNs/export?gid=1062014178&format=csv")
+lista_mazzi = pd.read_csv("https://docs.google.com/spreadsheets/d/1OqErPk_bxqE40wShGgiobY68JD2F5oEh3LewWh-3hNs/export?gid=1062014178&format=csv")
+lista_mazzi = lista_mazzi[pd.isna(lista_mazzi["deck_name"]) == False].sort_values(by="elo", ascending=False)
+lista_mazzi["Vittorie torneo"] = lista_mazzi["Vittorie torneo"].astype(int)
 # st.dataframe(lista_mazzi)
 
 # tournaments = st.session_state['tournaments']
-print(lista_mazzi)
+# print(lista_mazzi)
+
 ################################
 # PAGINA: "Classifiche"
 st.markdown("## 🏆 Classifica deck")
@@ -39,6 +41,10 @@ plot_distribuzione_mazzi(lista_distribuzione[1:])
 
 
 
+# matches = st.session_state['matches']
+# st.dataframe(matches)
+matches2 = pd.read_csv("https://docs.google.com/spreadsheets/d/1OqErPk_bxqE40wShGgiobY68JD2F5oEh3LewWh-3hNs/export?gid=316808971&format=csv")
+st.dataframe(matches2)
 
 st.markdown("### Numero di duelli")
 plot_numero_duelli_mazzi(classifica, matches)

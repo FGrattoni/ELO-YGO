@@ -129,7 +129,7 @@ with st.form(key = 'insert_match'):
         outcome2 = st.radio("Vincitore secondo duello:", options = ["0", "1", "2"], horizontal=True, key="outcome2_radio")
         outcome3 = st.radio("Vincitore terzo duello:",   options = ["0", "1", "2"], horizontal=True, key="outcome3_radio")
     with c2:
-        tournament = st.selectbox("Torneo: ", options = tournaments["tournament_name"])
+        tournament = st.selectbox("Torneo: ", options = tournaments["tournament_name"].drop_duplicates())
     button_insert_match = st.form_submit_button("Inserisci il duello a sistema")
 
 if not button_insert_match:
@@ -165,26 +165,6 @@ if button_insert_match:
     if outcome == True:
             st.success("Duello inserito correttamente a sistema")
             
-    """
-    outcome = insert_match2(matches, deck_1, deck_2, outcome1, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
-    if outcome == True:
-        st.success("Duello inserito correttamente a sistema")
-
-    if outcome2 != "0":
-        matches, lista_mazzi, tournaments = download_data()
-        outcome = insert_match2(matches, deck_1, deck_2, outcome2, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
-        if outcome == True:
-            st.success("Secondo duello inserito correttamente a sistema")
-    
-    if outcome3 != "0":
-        matches, lista_mazzi, tournaments = download_data()
-        outcome = insert_match2(matches, deck_1, deck_2, outcome3, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
-        if outcome == True:
-            st.success("Terzo duello inserito correttamente a sistema")
-    """
-
-
-
 
 # Sheets
 st.write( "[🔗 Link to Google Sheets](" + spread.url + ")" )

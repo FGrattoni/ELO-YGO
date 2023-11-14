@@ -341,7 +341,7 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
             sconfitte_consecutive_deck1 += 1
         else: stop_sconfitte = 1
     if sconfitte_consecutive_deck1 > 5 and sconfitte_consecutive_deck1 % 2 == 0:
-        telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck1}^ sconfitta consecutiva per {deck1} 😭", bot_id, chat_id)
+        # telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck1}^ sconfitta consecutiva per {deck1} 😭", bot_id, chat_id)
         telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
 
     filtered_matches_deck2_inverso = get_deck_matches(matches, deck2).sort_values("match_key", ascending = False)
@@ -352,7 +352,7 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
             sconfitte_consecutive_deck2 += 1
         else: stop_sconfitte = 1
     if sconfitte_consecutive_deck2 > 5 and sconfitte_consecutive_deck2 % 2 == 0:
-        telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck2}^ sconfitta consecutiva per <br>{deck2}</br> 😭", bot_id, chat_id)
+        # telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck2}^ sconfitta consecutiva per <br>{deck2}</br> 😭", bot_id, chat_id)
         telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
 
     # # # # # #
@@ -594,9 +594,9 @@ def eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo
         stats_deck1 += f"{vittorie_consecutive_deck1}^ vittoria consecutiva contro tutti i deck"
     if sconfitte_consecutive_deck1 % 2 == 0 and sconfitte_consecutive_deck1 > 3: 
         stats_deck1 += f"{sconfitte_consecutive_deck1}^ sconfitta consecutiva contro tutti i deck"
-        if sconfitte_consecutive_deck1 > 5:
-            telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck1}^ sconfitta consecutiva per {deck1} 😭", bot_id, chat_id)
-            telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
+        # if sconfitte_consecutive_deck1 > 5:
+        #     # telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck1}^ sconfitta consecutiva per {deck1} 😭", bot_id, chat_id)
+        #     telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
 
     delta_posizioni = rank_deck1_post - rank_deck1_pre
     if delta_posizioni < 0:

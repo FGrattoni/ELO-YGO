@@ -111,25 +111,45 @@ def get_deck_elo(deck_name, mazzi):
 
 
 
-def update_deck_elo(deck_name1, deck_name2, elo_updated1, elo_updated2, score1, score2, lista_mazzi, verbose = True):
+def update_deck_elo(deck_name1, deck_name2, elo_updated1, elo_updated2, 
+                    score_1_1, score_1_2, score_1_3,
+                    score_2_1, score_2_2, score_2_3, 
+                    lista_mazzi, verbose = True):
     """ function to update the entire deck list, with the new elo
     """
 
     for i in lista_mazzi.index:
         if lista_mazzi.loc[i , "deck_name"] == deck_name1:
             lista_mazzi.loc[i, "elo"] = elo_updated1
-            if score1 == 1:
+            if score_1_1 == 1:
                 lista_mazzi.loc[i, "vinte"] += 1
-            else: 
+            elif score_1_1 == 0: 
                 lista_mazzi.loc[i, "perse"] += 1
+            if score_1_2 == 1: 
+                lista_mazzi.loc[i, "vinte"] += 1
+            elif score_1_2 == 0: 
+                lista_mazzi.loc[i, "perse"] += 1
+            if score_1_3 == 1: 
+                lista_mazzi.loc[i, "vinte"] += 1
+            elif score_1_3 == 0: 
+                lista_mazzi.loc[i, "perse"] += 1
+
             v = lista_mazzi.loc[i, "vinte"]
             p = lista_mazzi.loc[i, "perse"]
             lista_mazzi.loc[i, "percentage"] = v / (v + p)
         elif lista_mazzi.loc[i , "deck_name"] == deck_name2:
             lista_mazzi.loc[i, "elo"] = elo_updated2
-            if score2 == 1:
+            if score_2_1 == 1:
                 lista_mazzi.loc[i, "vinte"] += 1
-            else: 
+            elif score_2_1 == 0: 
+                lista_mazzi.loc[i, "perse"] += 1
+            if score_2_2 == 1:
+                lista_mazzi.loc[i, "vinte"] += 1
+            elif score_2_2 == 0: 
+                lista_mazzi.loc[i, "perse"] += 1
+            if score_2_3 == 1:
+                lista_mazzi.loc[i, "vinte"] += 1
+            elif score_2_3 == 0: 
                 lista_mazzi.loc[i, "perse"] += 1
             v = lista_mazzi.loc[i, "vinte"]
             p = lista_mazzi.loc[i, "perse"]
@@ -716,10 +736,10 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
 
     ##### Duello 1
 
-    if outcome1=="1": win_flag_1 = 1
-    else: win_flag_1 = 0
+    if outcome1=="1": win_flag_1_1 = 1
+    else: win_flag_1_1 = 0
 
-    elo_after_1 = elo_calculation(elo_deck1, elo_deck2, win_flag_1)
+    elo_after_1 = elo_calculation(elo_deck1, elo_deck2, win_flag_1_1)
 
     data_list_1 = {
         "match_key": [10*id_match+1],
@@ -728,16 +748,16 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
         "date": [date],
         "time": [time],
         "deck_name": [deck1],
-        "win_flag": [win_flag_1],
+        "win_flag": [win_flag_1_1],
         "elo_before": [elo_deck1],
         "elo_after": [elo_after_1],
         "id_tournament": [tournament]
     }
 
-    if outcome1=="2": win_flag_2 = 1
-    else: win_flag_2 = 0
+    if outcome1=="2": win_flag_2_1 = 1
+    else: win_flag_2_1 = 0
 
-    elo_after_2 = elo_calculation(elo_deck2, elo_deck1, win_flag_2)
+    elo_after_2 = elo_calculation(elo_deck2, elo_deck1, win_flag_2_1)
 
     data_list_2 = {
         "match_key": [10*id_match + 2],
@@ -746,7 +766,7 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
         "date": [date],
         "time": [time],
         "deck_name": [deck2],
-        "win_flag": [win_flag_2],
+        "win_flag": [win_flag_2_1],
         "elo_before": [elo_deck2],
         "elo_after": [elo_after_2],
         "id_tournament": [tournament]
@@ -771,10 +791,10 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
         elo_after_1_2 = 0
         elo_after_2_2 = 0
     if outcome2 != "0":
-        if outcome2=="1": win_flag_1 = 1
-        else: win_flag_1 = 0
+        if outcome2=="1": win_flag_1_2 = 1
+        else: win_flag_1_2 = 0
 
-        elo_after_1_2 = elo_calculation(elo_after_1, elo_after_2, win_flag_1)
+        elo_after_1_2 = elo_calculation(elo_after_1, elo_after_2, win_flag_1_2)
 
         data_list_1 = {
             "match_key": [10*id_match2+1],
@@ -783,16 +803,16 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
             "date": [date],
             "time": [time],
             "deck_name": [deck1],
-            "win_flag": [win_flag_1],
+            "win_flag": [win_flag_1_2],
             "elo_before": [elo_after_1],
             "elo_after": [elo_after_1_2],
             "id_tournament": [tournament]
         }
 
-        if outcome2=="2": win_flag_2 = 1
-        else: win_flag_2 = 0
+        if outcome2=="2": win_flag_2_2 = 1
+        else: win_flag_2_2 = 0
 
-        elo_after_2_2 = elo_calculation(elo_after_2, elo_after_1, win_flag_2)
+        elo_after_2_2 = elo_calculation(elo_after_2, elo_after_1, win_flag_2_2)
 
         data_list_2 = {
             "match_key": [10*id_match2+ 2],
@@ -801,7 +821,7 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
             "date": [date],
             "time": [time],
             "deck_name": [deck2],
-            "win_flag": [win_flag_2],
+            "win_flag": [win_flag_2_2],
             "elo_before": [elo_after_2],
             "elo_after": [elo_after_2_2],
             "id_tournament": [tournament]
@@ -827,10 +847,10 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
         elo_after_1_3 = 0
         elo_after_2_3 = 0
     elif outcome3 != "0":
-        if outcome3=="1": win_flag_1 = 1
-        else: win_flag_1 = 0
+        if outcome3=="1": win_flag_1_3 = 1
+        else: win_flag_1_3 = 0
 
-        elo_after_1_3 = elo_calculation(elo_after_1_2, elo_after_2_2, win_flag_1)
+        elo_after_1_3 = elo_calculation(elo_after_1_2, elo_after_2_2, win_flag_1_3)
 
         data_list_1 = {
             "match_key": [10*id_match3+1],
@@ -839,16 +859,16 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
             "date": [date],
             "time": [time],
             "deck_name": [deck1],
-            "win_flag": [win_flag_1],
+            "win_flag": [win_flag_1_3],
             "elo_before": [elo_after_1_2],
             "elo_after": [elo_after_1_3],
             "id_tournament": [tournament]
         }
 
-        if outcome3=="2": win_flag_2 = 1
-        else: win_flag_2 = 0
+        if outcome3=="2": win_flag_2_3 = 1
+        else: win_flag_2_3 = 0
 
-        elo_after_2_3 = elo_calculation(elo_after_2_2, elo_after_1_2, win_flag_2)
+        elo_after_2_3 = elo_calculation(elo_after_2_2, elo_after_1_2, win_flag_2_3)
 
         data_list_2 = {
             "match_key": [10*id_match3+2],
@@ -857,7 +877,7 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
             "date": [date],
             "time": [time],
             "deck_name": [deck2],
-            "win_flag": [win_flag_2],
+            "win_flag": [win_flag_2_3],
             "elo_before": [elo_after_2_2],
             "elo_after": [elo_after_2_3],
             "id_tournament": [tournament]
@@ -895,6 +915,24 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
     elif outcome1 == "2" and outcome2 == "0" and outcome3 == "0":
         outcome_finale = "2"
 
+    if outcome2 == "0": 
+        elo_finale_1 = elo_after_1
+        elo_finale_2 = elo_after_2
+        win_flag_1_2 = 9
+        win_flag_2_2 = 9
+        win_flag_1_3 = 9
+        win_flag_2_3 = 9
+    elif outcome3 == "0":
+        elo_finale_1 = elo_after_1_2
+        elo_finale_2 = elo_after_2_2
+        win_flag_1_3 = 9
+        win_flag_2_3 = 9
+    else:
+        elo_finale_1 = elo_after_1_3
+        elo_finale_2 = elo_after_2_3
+
+    
+
 
     # statistiche dei duelli tra i due deck
     statistiche_duelli(deck1, deck2, matches)
@@ -906,7 +944,10 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
 
     spread.df_to_sheet(matches, sheet = "matches", index = False)
 
-    update_deck_elo(deck1, deck2, elo_after_1, elo_after_2, win_flag_1, win_flag_2, lista_mazzi)
+    update_deck_elo(deck1, deck2, elo_updated1 = elo_finale_1, elo_updated2 = elo_finale_2, 
+                    score_1_1 = win_flag_1_1, score_1_2 = win_flag_1_2, score_1_3 = win_flag_1_3, 
+                    score_2_1 = win_flag_2_1, score_2_2 = win_flag_2_2, score_2_3 = win_flag_2_3, 
+                    lista_mazzi= lista_mazzi)
     
     rank_deck1_post = get_deck_rank(deck1, lista_mazzi.iloc[1:])
     rank_deck2_post = get_deck_rank(deck2, lista_mazzi.iloc[1:])

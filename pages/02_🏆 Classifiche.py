@@ -2,7 +2,11 @@ from functions import *
 
 matches = st.session_state['matches']
 lista_mazzi = st.session_state['lista_mazzi']
-tournaments = st.session_state['tournaments']
+
+# lista_mazzi = pd.read_csv("https://docs.google.com/spreadsheets/d/1OqErPk_bxqE40wShGgiobY68JD2F5oEh3LewWh-3hNs/export?gid=1062014178&format=csv")
+# st.dataframe(lista_mazzi)
+
+# tournaments = st.session_state['tournaments']
 print(lista_mazzi)
 ################################
 # PAGINA: "Classifiche"

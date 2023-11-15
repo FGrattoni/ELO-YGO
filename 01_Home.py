@@ -102,7 +102,7 @@ st.session_state['tournaments'] = tournaments
 ### APP ########################
 
 #st.markdown("# YGO ELO app")
-st.image("./YGMEME_title.jpg")
+st.image("./YGMEME_title_2_0_partito.png")
 
 
 ################################

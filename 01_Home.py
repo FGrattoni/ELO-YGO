@@ -27,9 +27,6 @@ import random
 chat_id = st.secrets["telegram"]['chat_id']
 bot_id = st.secrets["telegram"]['bot_id']
 
-st.session_state['verde_elo'] = "#00CC00"
-st.session_state['rosso_elo'] = "Red"
-
 
 # Streamlit CONFIGURATION settings
 About = "App per l'inserimento dei duelli, la gestione del database dei duelli e il calcolo del punteggio ELO."
@@ -88,7 +85,15 @@ def download_data():
 
     return matches, lista_mazzi, tournaments
 
-matches, lista_mazzi, tournaments = download_data()
+# matches, lista_mazzi, tournaments = download_data()
+
+lista_mazzi = pd.read_csv(st.secrets["ghseet_url_lista_mazzi"])
+
+# lista_mazzi = lista_mazzi[pd.isna(lista_mazzi["deck_name"]) == False]
+
+matches = pd.read_csv(st.secrets["gsheet_url_matches"])
+tournaments = pd.read_csv(st.secrets["gsheet_url_tournaments"])
+tournaments = tournaments[pd.isna(tournaments["tournament_name"]) == False]
 
 st.session_state['matches'] = matches
 st.session_state['lista_mazzi'] = lista_mazzi
@@ -102,7 +107,7 @@ st.session_state['tournaments'] = tournaments
 ### APP ########################
 
 #st.markdown("# YGO ELO app")
-st.image("./YGMEME_title_2_0_partito.png")
+st.image("./YGMEME_title_2_1.jpg")
 
 
 ################################
@@ -112,7 +117,7 @@ if st.secrets["debug"]['debug_offline'] == "True":
         st.dataframe(matches)
     
     with st.expander("lista_mazzi"):
-        st.dataframe(lista_mazzi[1:])
+        st.dataframe(lista_mazzi[:])
     
 
 
@@ -120,16 +125,16 @@ if st.secrets["debug"]['debug_offline'] == "True":
 with st.form(key = 'insert_match'):
     c1, c2  = st.columns((1, 1))
     with c1: 
-        deck_1 = st.selectbox("Mazzo 1: ", lista_mazzi["deck_name"])
+        deck_1 = st.selectbox("Mazzo 1: ", lista_mazzi["deck_name"][1:], index=None, placeholder="Seleziona un mazzo")
     with c2: 
-        deck_2 = st.selectbox("Mazzo 2: ", lista_mazzi["deck_name"])
+        deck_2 = st.selectbox("Mazzo 2: ", lista_mazzi["deck_name"][1:], index=None, placeholder="Seleziona un mazzo")
     c1, c2 = st.columns([1, 1])
     with c1:
         outcome1  = st.radio("Vincitore primo duello: ",  options = ["1", "2"], horizontal=True, key="outcome1_radio")
         outcome2 = st.radio("Vincitore secondo duello:", options = ["0", "1", "2"], horizontal=True, key="outcome2_radio")
         outcome3 = st.radio("Vincitore terzo duello:",   options = ["0", "1", "2"], horizontal=True, key="outcome3_radio")
     with c2:
-        tournament = st.selectbox("Torneo: ", options = tournaments["tournament_name"])
+        tournament = st.selectbox("Torneo: ", options = tournaments["tournament_name"].drop_duplicates(), index=None, placeholder="Seleziona un torneo...")
     button_insert_match = st.form_submit_button("Inserisci il duello a sistema")
 
 if not button_insert_match:
@@ -159,26 +164,21 @@ if not button_insert_match:
 
 if button_insert_match:
     
+    # lista_mazzi = pd.read_csv(st.secrets["ghseet_url_lista_mazzi"]).sort_values(by="elo", ascending=False)
+    # # lista_mazzi = lista_mazzi[pd.isna(lista_mazzi["deck_name"]) == False]
+    # matches = pd.read_csv(st.secrets["gsheet_url_matches"])
+    # tournaments = pd.read_csv(st.secrets["gsheet_url_tournaments"])
+    # tournaments = tournaments[pd.isna(tournaments["tournament_name"]) == False]
+
     matches, lista_mazzi, tournaments = download_data()
-    outcome = insert_match2(matches, deck_1, deck_2, outcome1, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
-    if outcome == True:
-        st.success("Duello inserito correttamente a sistema")
+    # lista_mazzi = lista_mazzi[pd.isna(lista_mazzi["deck_name"]) == False].sort_values(by="elo", ascending=False)
 
-    if outcome2 != "0":
-        matches, lista_mazzi, tournaments = download_data()
-        outcome = insert_match2(matches, deck_1, deck_2, outcome2, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
-        if outcome == True:
-            st.success("Secondo duello inserito correttamente a sistema")
     
-    if outcome3 != "0":
-        matches, lista_mazzi, tournaments = download_data()
-        outcome = insert_match2(matches, deck_1, deck_2, outcome3, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
-        if outcome == True:
-            st.success("Terzo duello inserito correttamente a sistema")
 
-
-
-
+    outcome = insert_match2(matches, deck_1, deck_2, outcome1, outcome2, outcome3, tournament, lista_mazzi, bot_id=bot_id, chat_id=chat_id)
+    if outcome == True:
+            st.success("Duello inserito correttamente a sistema")
+            
 
 # Sheets
 st.write( "[🔗 Link to Google Sheets](" + spread.url + ")" )

@@ -111,30 +111,67 @@ def get_deck_elo(deck_name, mazzi):
 
 
 
-def update_deck_elo(deck_name1, deck_name2, elo_updated1, elo_updated2, score1, score2, lista_mazzi, verbose = True):
+def update_deck_elo(deck_name1, deck_name2, elo_updated1, elo_updated2, 
+                    score_1_1, score_1_2, score_1_3,
+                    score_2_1, score_2_2, score_2_3, 
+                    lista_mazzi, verbose = True):
     """ function to update the entire deck list, with the new elo
     """
 
     for i in lista_mazzi.index:
         if lista_mazzi.loc[i , "deck_name"] == deck_name1:
             lista_mazzi.loc[i, "elo"] = elo_updated1
-            if score1 == 1:
+            if score_1_1 == 1:
                 lista_mazzi.loc[i, "vinte"] += 1
-            else: 
+            elif score_1_1 == 0: 
                 lista_mazzi.loc[i, "perse"] += 1
+            if score_1_2 == 1: 
+                lista_mazzi.loc[i, "vinte"] += 1
+            elif score_1_2 == 0: 
+                lista_mazzi.loc[i, "perse"] += 1
+            if score_1_3 == 1: 
+                lista_mazzi.loc[i, "vinte"] += 1
+            elif score_1_3 == 0: 
+                lista_mazzi.loc[i, "perse"] += 1
+
             v = lista_mazzi.loc[i, "vinte"]
             p = lista_mazzi.loc[i, "perse"]
             lista_mazzi.loc[i, "percentage"] = v / (v + p)
         elif lista_mazzi.loc[i , "deck_name"] == deck_name2:
             lista_mazzi.loc[i, "elo"] = elo_updated2
-            if score2 == 1:
+            if score_2_1 == 1:
                 lista_mazzi.loc[i, "vinte"] += 1
-            else: 
+            elif score_2_1 == 0: 
+                lista_mazzi.loc[i, "perse"] += 1
+            if score_2_2 == 1:
+                lista_mazzi.loc[i, "vinte"] += 1
+            elif score_2_2 == 0: 
+                lista_mazzi.loc[i, "perse"] += 1
+            if score_2_3 == 1:
+                lista_mazzi.loc[i, "vinte"] += 1
+            elif score_2_3 == 0: 
                 lista_mazzi.loc[i, "perse"] += 1
             v = lista_mazzi.loc[i, "vinte"]
             p = lista_mazzi.loc[i, "perse"]
             lista_mazzi.loc[i, "percentage"] = v / (v + p)        
-    spread.df_to_sheet(lista_mazzi, sheet = "mazzi", index = False)
+
+    # st.write(lista_mazzi)
+
+    # st.write(lista_mazzi.iloc[0, :])
+    # st.write(lista_mazzi.iloc[1:, :].sort_values(by = "elo", ascending = False))
+
+    # prova = pd.concat([lista_mazzi.iloc[0,:] , st.write(lista_mazzi.iloc[1:, :].sort_values(by = "elo", ascending = False))], axis=1)
+
+    prova = lista_mazzi
+    prova['elo'] = pd.to_numeric(prova['elo'], errors='coerce')
+    st.write(prova)
+    prova = prova.sort_values(by='elo', ascending = False, na_position='first')
+    st.write(prova)
+    prova = prova.reset_index(drop=True)
+
+    st.write(prova)
+
+    spread.df_to_sheet(prova, sheet = "mazzi", index = False)
 
     return True
 
@@ -234,13 +271,13 @@ def print_duelli(matches, condensed = False):
             deck_name2 = matches[(matches["id_match"] == id_match) & (matches["deck_pos"] == 2)].reset_index()
             deck_name2 = deck_name2.loc[0]["deck_name"]
             if win_flag_1 == 1: 
-                output = output + f'<font color={st.session_state["verde_elo"]}>' + deck_name1 + '</font>'
+                output = output + f'<font color={st.secrets["verde_elo"]}>' + deck_name1 + '</font>'
                 output = output + " - "
-                output = output + f'<font color={st.session_state["rosso_elo"]}>' + deck_name2 + '</font>  \n'
+                output = output + f'<font color={st.secrets["rosso_elo"]}>' + deck_name2 + '</font>  \n'
             else:
-                output = output + f'<font color={st.session_state["rosso_elo"]}>' + deck_name1 + '</font>'
+                output = output + f'<font color={st.secrets["rosso_elo"]}>' + deck_name1 + '</font>'
                 output = output + " - "
-                output = output + f'<font color={st.session_state["verde_elo"]}>' + deck_name2 + '</font>  \n'
+                output = output + f'<font color={st.secrets["verde_elo"]}>' + deck_name2 + '</font>  \n'
 
     st.markdown(output, unsafe_allow_html = True)
     return True
@@ -256,8 +293,8 @@ def output_info_mazzo_serata(lista_mazzi_selezionati):
     for index, row in lista_mazzi_selezionati.iterrows():
         output = output + f" ⬩ **{row['deck_name']}** - {row['duelli_serata']} duelli "
         output = output + f"({ int( (row['vittorie_serata'] / row['duelli_serata']) * 100) }%) ⬩ "
-        if int(row['delta_elo_serata']) > 0: output = output + f"<font color={st.session_state['verde_elo']}>+"
-        elif int(row['delta_elo_serata']) < 0: output = output + f"<font color={st.session_state['rosso_elo']}>"
+        if int(row['delta_elo_serata']) > 0: output = output + f"<font color={st.secrets['verde_elo']}>+"
+        elif int(row['delta_elo_serata']) < 0: output = output + f"<font color={st.secrets['rosso_elo']}>"
         else: f"<font>"
         output = output + f"{int(row['delta_elo_serata'])}</font> punti  \n"
     return output 
@@ -321,7 +358,7 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
             sconfitte_consecutive_deck1 += 1
         else: stop_sconfitte = 1
     if sconfitte_consecutive_deck1 > 5 and sconfitte_consecutive_deck1 % 2 == 0:
-        telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck1}^ sconfitta consecutiva per {deck1} 😭", bot_id, chat_id)
+        # telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck1}^ sconfitta consecutiva per {deck1} 😭", bot_id, chat_id)
         telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
 
     filtered_matches_deck2_inverso = get_deck_matches(matches, deck2).sort_values("match_key", ascending = False)
@@ -332,7 +369,7 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
             sconfitte_consecutive_deck2 += 1
         else: stop_sconfitte = 1
     if sconfitte_consecutive_deck2 > 5 and sconfitte_consecutive_deck2 % 2 == 0:
-        telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck2}^ sconfitta consecutiva per <br>{deck2}</br> 😭", bot_id, chat_id)
+        # telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck2}^ sconfitta consecutiva per <br>{deck2}</br> 😭", bot_id, chat_id)
         telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
 
     # # # # # #
@@ -524,7 +561,31 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
         if num < 0.15:
             telegram_send_sticker("https://i.postimg.cc/wT89Qv4B/Zombie-Beltra.webp", bot_id, chat_id) # 
 
-
+    elif mazzo_vincitore == "Dante": 
+        if num < 0.083333333:
+            telegram_send_sticker("https://i.postimg.cc/fbDG1kjD/Dante-1.jpg", bot_id, chat_id) # 
+        elif num < 0.166666666666667:
+            telegram_send_sticker("https://i.postimg.cc/Vk8sLfBH/Dante-10.jpg", bot_id, chat_id) # 
+        elif num < 0.25:
+            telegram_send_sticker("https://i.postimg.cc/9fXWZLkd/Dante-11.jpg", bot_id, chat_id) # 
+        elif num < 0.333333333333333:
+            telegram_send_sticker("https://i.postimg.cc/BZjnmwnN/Dante-5.jpg", bot_id, chat_id) # 
+        elif num < 0.416666666666667:
+            telegram_send_sticker("https://i.postimg.cc/438X5zCr/Dante-12.jpg", bot_id, chat_id) # 
+        elif num < 0.5:
+            telegram_send_sticker("https://i.postimg.cc/LsDcSRNf/Dante-2.jpg", bot_id, chat_id) # 
+        elif num < 0.583333333333333:
+            telegram_send_sticker("https://i.postimg.cc/90RKy9Vt/Dante-3.jpg", bot_id, chat_id) # 
+        elif num < 0.666666666666667:
+            telegram_send_sticker("https://i.postimg.cc/tTgLCfMc/Dante-4.jpg", bot_id, chat_id) # 
+        elif num < 0.75:
+            telegram_send_sticker("https://i.postimg.cc/TwHBy083/Dante-6.jpg", bot_id, chat_id) # 
+        elif num < 0.833333333333333:
+            telegram_send_sticker("https://i.postimg.cc/05h2Fd6v/Dante-7.jpg", bot_id, chat_id) # 
+        elif num < 0.916666666666667:
+            telegram_send_sticker("https://i.postimg.cc/5NvNVYvC/Dante-8.jpg", bot_id, chat_id) # 
+        elif num <= 1:
+            telegram_send_sticker("https://i.postimg.cc/zGFzysxD/Dante-9.jpg", bot_id, chat_id) # 
 
     return True
 
@@ -574,9 +635,9 @@ def eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo
         stats_deck1 += f"{vittorie_consecutive_deck1}^ vittoria consecutiva contro tutti i deck"
     if sconfitte_consecutive_deck1 % 2 == 0 and sconfitte_consecutive_deck1 > 3: 
         stats_deck1 += f"{sconfitte_consecutive_deck1}^ sconfitta consecutiva contro tutti i deck"
-        if sconfitte_consecutive_deck1 > 5:
-            telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck1}^ sconfitta consecutiva per {deck1} 😭", bot_id, chat_id)
-            telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
+        # if sconfitte_consecutive_deck1 > 5:
+        #     # telegram_send_message(f"Questa è stata la {sconfitte_consecutive_deck1}^ sconfitta consecutiva per {deck1} 😭", bot_id, chat_id)
+        #     telegram_send_sticker("https://i.postimg.cc/sXQ1y1Lr/Stop-hes-already-dead.webp", bot_id, chat_id)
 
     delta_posizioni = rank_deck1_post - rank_deck1_pre
     if delta_posizioni < 0:
@@ -642,7 +703,9 @@ def eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo
 
 
 
-def telegram_duello_message(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, 
+def telegram_duello_message(deck1, deck2, outcome1, outcome2, outcome3, outcome_finale,
+                            elo_deck1, elo_after_1, elo_after_1_2, elo_after_1_3,
+                            elo_deck2, elo_after_2, elo_after_2_2, elo_after_2_3,
                             bot_id, chat_id, matches, rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post, emoji_flag=True):
     outcome_1, outcome_2, pointer = (" - ", " - ", "")
     if emoji_flag:
@@ -652,22 +715,45 @@ def telegram_duello_message(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_d
         pointer = "⯈"
 
     message = ""
-    if outcome == "1":
-        message = pointer + "<b> " + deck1 + "</b>" + outcome_1 + deck2 + "\n"
-        message = message + str(elo_after_1) + " (▲ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▼ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
+    if outcome1 == "1":
+        message = pointer + "<u>" + deck1 + "</u>" + outcome_1 + deck2 + "\n"
+        if outcome2 == "0":
+            message = message + str(elo_after_1) + " (▲ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▼ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
     else: 
-        message = deck1 + outcome_2 + pointer + "<b> " + deck2 + "</b>" + "\n" 
-        message = message + str(elo_after_1) + " (▼ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▲ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
+        message = deck1 + outcome_2 + pointer + "<u>" + deck2 + "</u>" + "\n" 
+        if outcome2 == "0":
+            message = message + str(elo_after_1) + " (▼ " + str(round(elo_after_1- elo_deck1, 1)) + ") - " + str(elo_after_2) + " (▲ " + str(round(elo_after_2 - elo_deck2, 1)) + ")" 
 
-    message += eventi_duello_statistiche(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, bot_id, chat_id, matches, 
-                                         rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post)
+    if outcome2 != "0":
+        if outcome2 == "1":
+            message = message + pointer + "<u>" + deck1 + "</u>" + outcome_1 + deck2 + "\n"
+        else: 
+            message = message + deck1 + outcome_2 + pointer + "<u>" + deck2 + "</u>" + "\n"
+        if outcome3 == "0":
+            if elo_after_1_2 - elo_deck1 > 0: 
+                message = message + str(elo_after_1_2) + " (▲ " + str(round(elo_after_1_2 - elo_deck1, 1)) + ") - " + str(elo_after_2_2) + " (▼ " + str(round(elo_after_2_2 - elo_deck2, 1)) + ")" 
+            else: 
+                message = message + str(elo_after_1_2) + " (▼ " + str(round(elo_after_1_2 - elo_deck1, 1)) + ") - " + str(elo_after_2_2) + " (▲ " + str(round(elo_after_2_2 - elo_deck2, 1)) + ")" 
+
+    if outcome3 != "0":
+        if outcome3 == "1":
+            message = message + pointer + "<u>" + deck1 + "</u>" + outcome_1 + deck2 + "\n"
+        else: 
+            message = message + deck1 + outcome_2 + pointer + "<u>" + deck2 + "</u>" + "\n" 
+        if elo_after_1_3 - elo_deck1 > 0:
+            message = message + str(elo_after_1_3) + " (▲ " + str(round(elo_after_1_3 - elo_deck1, 1)) + ") - " + str(elo_after_2_3) + " (▼ " + str(round(elo_after_2_3 - elo_deck2, 1)) + ")" 
+        else:
+            message = message + str(elo_after_1_3) + " (▼ " + str(round(elo_after_1_3 - elo_deck1, 1)) + ") - " + str(elo_after_2_3) + " (▲ " + str(round(elo_after_2_3 - elo_deck2, 1)) + ")" 
+
+    message += eventi_duello_statistiche(deck1, deck2, outcome_finale, elo_deck1, elo_after_1, elo_deck2, elo_after_2, bot_id, chat_id, matches, 
+                                             rank_deck1_pre, rank_deck2_pre, rank_deck1_post, rank_deck2_post)
     
     return message
 #  ❌ - ✅
 
 
 
-def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_id, chat_id):
+def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournament, lista_mazzi, bot_id, chat_id):
 
     if deck1 == deck2: 
         st.error("Errore. Mazzo 1 e Mazzo 2 combaciano.")
@@ -679,6 +765,8 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
     time = str(datetime.now().strftime("%H:%M"))
 
     id_match = max(matches["id_match"]) + 1
+    id_match2 = max(matches["id_match"]) + 2
+    id_match3 = max(matches["id_match"]) + 3
 
     elo_deck1 = get_deck_elo(deck1, lista_mazzi)
     elo_deck2 = get_deck_elo(deck2, lista_mazzi)
@@ -686,10 +774,13 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
     rank_deck1_pre = get_deck_rank(deck1, lista_mazzi.iloc[1:])
     rank_deck2_pre = get_deck_rank(deck2, lista_mazzi.iloc[1:])
 
-    if outcome=="1": win_flag_1 = 1
-    else: win_flag_1 = 0
 
-    elo_after_1 = elo_calculation(elo_deck1, elo_deck2, win_flag_1)
+    ##### Duello 1
+
+    if outcome1=="1": win_flag_1_1 = 1
+    else: win_flag_1_1 = 0
+
+    elo_after_1 = elo_calculation(elo_deck1, elo_deck2, win_flag_1_1)
 
     data_list_1 = {
         "match_key": [10*id_match+1],
@@ -698,16 +789,16 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
         "date": [date],
         "time": [time],
         "deck_name": [deck1],
-        "win_flag": [win_flag_1],
+        "win_flag": [win_flag_1_1],
         "elo_before": [elo_deck1],
         "elo_after": [elo_after_1],
         "id_tournament": [tournament]
     }
 
-    if outcome=="2": win_flag_2 = 1
-    else: win_flag_2 = 0
+    if outcome1=="2": win_flag_2_1 = 1
+    else: win_flag_2_1 = 0
 
-    elo_after_2 = elo_calculation(elo_deck2, elo_deck1, win_flag_2)
+    elo_after_2 = elo_calculation(elo_deck2, elo_deck1, win_flag_2_1)
 
     data_list_2 = {
         "match_key": [10*id_match + 2],
@@ -716,7 +807,7 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
         "date": [date],
         "time": [time],
         "deck_name": [deck2],
-        "win_flag": [win_flag_2],
+        "win_flag": [win_flag_2_1],
         "elo_before": [elo_deck2],
         "elo_after": [elo_after_2],
         "id_tournament": [tournament]
@@ -735,6 +826,155 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
     data_list = pd.concat([data_list_1, data_list_2], axis=0)
     matches = matches.append(data_list, ignore_index=True)
 
+
+    ##### Duello 2
+    if outcome2 == "0":
+        elo_after_1_2 = 0
+        elo_after_2_2 = 0
+    if outcome2 != "0":
+        if outcome2=="1": win_flag_1_2 = 1
+        else: win_flag_1_2 = 0
+
+        elo_after_1_2 = elo_calculation(elo_after_1, elo_after_2, win_flag_1_2)
+
+        data_list_1 = {
+            "match_key": [10*id_match2+1],
+            "id_match": id_match2,
+            "deck_pos": [1], #fixed
+            "date": [date],
+            "time": [time],
+            "deck_name": [deck1],
+            "win_flag": [win_flag_1_2],
+            "elo_before": [elo_after_1],
+            "elo_after": [elo_after_1_2],
+            "id_tournament": [tournament]
+        }
+
+        if outcome2=="2": win_flag_2_2 = 1
+        else: win_flag_2_2 = 0
+
+        elo_after_2_2 = elo_calculation(elo_after_2, elo_after_1, win_flag_2_2)
+
+        data_list_2 = {
+            "match_key": [10*id_match2+ 2],
+            "id_match": id_match2,
+            "deck_pos": [2], # fixed
+            "date": [date],
+            "time": [time],
+            "deck_name": [deck2],
+            "win_flag": [win_flag_2_2],
+            "elo_before": [elo_after_2],
+            "elo_after": [elo_after_2_2],
+            "id_tournament": [tournament]
+        }
+
+        c1, c2  = st.columns((1, 1))
+
+        # ▲ ▼ 
+        with c1: 
+            display_change_elo(deck1, elo_after_1, elo_after_1_2)
+        with c2:
+            display_change_elo(deck2, elo_after_2, elo_after_2_2)
+
+        data_list_1 = pd.DataFrame(data_list_1)
+        data_list_2 = pd.DataFrame(data_list_2)
+        data_list = pd.concat([data_list_1, data_list_2], axis=0)
+        matches = matches.append(data_list, ignore_index=True)
+
+
+    ##### Duello 3
+    
+    if outcome3 == "0":
+        elo_after_1_3 = 0
+        elo_after_2_3 = 0
+    elif outcome3 != "0":
+        if outcome3=="1": win_flag_1_3 = 1
+        else: win_flag_1_3 = 0
+
+        elo_after_1_3 = elo_calculation(elo_after_1_2, elo_after_2_2, win_flag_1_3)
+
+        data_list_1 = {
+            "match_key": [10*id_match3+1],
+            "id_match": id_match3,
+            "deck_pos": [1], #fixed
+            "date": [date],
+            "time": [time],
+            "deck_name": [deck1],
+            "win_flag": [win_flag_1_3],
+            "elo_before": [elo_after_1_2],
+            "elo_after": [elo_after_1_3],
+            "id_tournament": [tournament]
+        }
+
+        if outcome3=="2": win_flag_2_3 = 1
+        else: win_flag_2_3 = 0
+
+        elo_after_2_3 = elo_calculation(elo_after_2_2, elo_after_1_2, win_flag_2_3)
+
+        data_list_2 = {
+            "match_key": [10*id_match3+2],
+            "id_match": id_match3,
+            "deck_pos": [2], # fixed
+            "date": [date],
+            "time": [time],
+            "deck_name": [deck2],
+            "win_flag": [win_flag_2_3],
+            "elo_before": [elo_after_2_2],
+            "elo_after": [elo_after_2_3],
+            "id_tournament": [tournament]
+        }
+
+        c1, c2  = st.columns((1, 1))
+
+        # ▲ ▼ 
+        with c1: 
+            display_change_elo(deck1, elo_after_1_2, elo_after_1_3)
+        with c2:
+            display_change_elo(deck2, elo_after_2_2, elo_after_2_3)
+
+        data_list_1 = pd.DataFrame(data_list_1)
+        data_list_2 = pd.DataFrame(data_list_2)
+        data_list = pd.concat([data_list_1, data_list_2], axis=0)
+        matches = matches.append(data_list, ignore_index=True)
+
+
+    ### creazione variabile outcome_finale
+
+    if outcome1 == "1" and outcome2 == "1": # outcome3 = 1, 2, 0 
+        outcome_finale = "1"
+    elif outcome1 == "2" and outcome2 == "2": 
+        outcome_finale = "2"
+    elif ((outcome1 == "1" and outcome2 == "2") or (outcome1 == "2" and outcome2 == "1")):
+        if outcome3 == "1":
+            outcome_finale = "1"
+        if outcome3 == "2":
+            outcome_finale = "2"
+        if outcome3 == "0":
+            outcome_finale = "0"
+    elif outcome1 == "1" and outcome2 == "0" and outcome3 == "0":
+        outcome_finale = "1"
+    elif outcome1 == "2" and outcome2 == "0" and outcome3 == "0":
+        outcome_finale = "2"
+
+    if outcome2 == "0": 
+        elo_finale_1 = elo_after_1
+        elo_finale_2 = elo_after_2
+        win_flag_1_2 = 9
+        win_flag_2_2 = 9
+        win_flag_1_3 = 9
+        win_flag_2_3 = 9
+    elif outcome3 == "0":
+        elo_finale_1 = elo_after_1_2
+        elo_finale_2 = elo_after_2_2
+        win_flag_1_3 = 9
+        win_flag_2_3 = 9
+    else:
+        elo_finale_1 = elo_after_1_3
+        elo_finale_2 = elo_after_2_3
+
+    
+
+
     # statistiche dei duelli tra i due deck
     statistiche_duelli(deck1, deck2, matches)
     # storico_duelli(deck1, deck2, matches)
@@ -745,7 +985,10 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
 
     spread.df_to_sheet(matches, sheet = "matches", index = False)
 
-    update_deck_elo(deck1, deck2, elo_after_1, elo_after_2, win_flag_1, win_flag_2, lista_mazzi)
+    update_deck_elo(deck1, deck2, elo_updated1 = elo_finale_1, elo_updated2 = elo_finale_2, 
+                    score_1_1 = win_flag_1_1, score_1_2 = win_flag_1_2, score_1_3 = win_flag_1_3, 
+                    score_2_1 = win_flag_2_1, score_2_2 = win_flag_2_2, score_2_3 = win_flag_2_3, 
+                    lista_mazzi= lista_mazzi)
     
     rank_deck1_post = get_deck_rank(deck1, lista_mazzi.iloc[1:])
     rank_deck2_post = get_deck_rank(deck2, lista_mazzi.iloc[1:])
@@ -754,19 +997,17 @@ def insert_match2(matches, deck1, deck2, outcome, tournament, lista_mazzi, bot_i
     # Invio messaggio con duello eseguito:
     telegram_send_message(
         telegram_duello_message(
-            deck1, deck2, outcome, 
-            elo_deck1, elo_after_1, 
-            elo_deck2, elo_after_2,  
+            deck1, deck2, outcome1, outcome2, outcome3, outcome_finale,
+            elo_deck1, elo_after_1, elo_after_1_2, elo_after_1_3,
+            elo_deck2, elo_after_2, elo_after_2_2, elo_after_2_3,
             bot_id, chat_id, matches, 
             rank_deck1_pre, rank_deck2_pre, 
             rank_deck1_post, rank_deck2_post,
             emoji_flag=True), 
         bot_id, chat_id)
 
-    eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_deck2, elo_after_2, lista_mazzi, bot_id, chat_id, matches)
+    eventi_duello_messaggi(deck1, deck2, outcome_finale, elo_deck1, elo_after_1, elo_deck2, elo_after_2, lista_mazzi, bot_id, chat_id, matches)
     # # # # # # # # # # # # 
-
-
 
     return True
 

@@ -561,7 +561,31 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
         if num < 0.15:
             telegram_send_sticker("https://i.postimg.cc/wT89Qv4B/Zombie-Beltra.webp", bot_id, chat_id) # 
 
-
+    elif mazzo_vincitore == "Dante": 
+        if num < 0.083333333:
+            telegram_send_sticker("https://i.postimg.cc/fbDG1kjD/Dante-1.jpg", bot_id, chat_id) # 
+        elif num < 0.166666666666667:
+            telegram_send_sticker("https://i.postimg.cc/Vk8sLfBH/Dante-10.jpg", bot_id, chat_id) # 
+        elif num < 0.25:
+            telegram_send_sticker("https://i.postimg.cc/9fXWZLkd/Dante-11.jpg", bot_id, chat_id) # 
+        elif num < 0.333333333333333:
+            telegram_send_sticker("https://i.postimg.cc/BZjnmwnN/Dante-5.jpg", bot_id, chat_id) # 
+        elif num < 0.416666666666667:
+            telegram_send_sticker("https://i.postimg.cc/438X5zCr/Dante-12.jpg", bot_id, chat_id) # 
+        elif num < 0.5:
+            telegram_send_sticker("https://i.postimg.cc/LsDcSRNf/Dante-2.jpg", bot_id, chat_id) # 
+        elif num < 0.583333333333333:
+            telegram_send_sticker("https://i.postimg.cc/90RKy9Vt/Dante-3.jpg", bot_id, chat_id) # 
+        elif num < 0.666666666666667:
+            telegram_send_sticker("https://i.postimg.cc/tTgLCfMc/Dante-4.jpg", bot_id, chat_id) # 
+        elif num < 0.75:
+            telegram_send_sticker("https://i.postimg.cc/TwHBy083/Dante-6.jpg", bot_id, chat_id) # 
+        elif num < 0.833333333333333:
+            telegram_send_sticker("https://i.postimg.cc/05h2Fd6v/Dante-7.jpg", bot_id, chat_id) # 
+        elif num < 0.916666666666667:
+            telegram_send_sticker("https://i.postimg.cc/5NvNVYvC/Dante-8.jpg", bot_id, chat_id) # 
+        elif num <= 1:
+            telegram_send_sticker("https://i.postimg.cc/zGFzysxD/Dante-9.jpg", bot_id, chat_id) # 
 
     return True
 

@@ -71,7 +71,7 @@ def telegram_send_sticker(sticker_ID, bot_id, chat_id):
 
 #ELO calculation functions
 def elo_calculation(elo_before, elo_opponent, outcome, K = 32):
-    """ funzione per calcolare il nuoo rating ELO
+    """ funzione per calcolare il nuovo rating ELO
     elo_before: elo del giocatore prima della partita
     elo_opponent: elo del giocatore sfidante
     outcome: 1=vittoria, 0=sconfitta
@@ -563,29 +563,32 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
 
     elif mazzo_vincitore == "Dante": 
         if num < 0.083333333:
-            telegram_send_sticker("https://i.postimg.cc/fbDG1kjD/Dante-1.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/VvHkMHPB/Dante-1.webp", bot_id, chat_id) # 
         elif num < 0.166666666666667:
-            telegram_send_sticker("https://i.postimg.cc/Vk8sLfBH/Dante-10.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/59P0ZjQY/Dante-2.webp", bot_id, chat_id) # 
         elif num < 0.25:
-            telegram_send_sticker("https://i.postimg.cc/9fXWZLkd/Dante-11.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/JnM0WkQJ/Dante-3.webp", bot_id, chat_id) # 
         elif num < 0.333333333333333:
-            telegram_send_sticker("https://i.postimg.cc/BZjnmwnN/Dante-5.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/prddmM4L/Dante-4.webp", bot_id, chat_id) # 
         elif num < 0.416666666666667:
-            telegram_send_sticker("https://i.postimg.cc/438X5zCr/Dante-12.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/G2K23mMf/Dante-5.webp", bot_id, chat_id) # 
         elif num < 0.5:
-            telegram_send_sticker("https://i.postimg.cc/LsDcSRNf/Dante-2.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/3wMWn64t/Dante-6.webp", bot_id, chat_id) # 
         elif num < 0.583333333333333:
-            telegram_send_sticker("https://i.postimg.cc/90RKy9Vt/Dante-3.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/3wgN6B2Y/Dante-7.webp", bot_id, chat_id) # 
         elif num < 0.666666666666667:
-            telegram_send_sticker("https://i.postimg.cc/tTgLCfMc/Dante-4.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/MKvTxx1s/Dante-8.webp", bot_id, chat_id) # 
         elif num < 0.75:
-            telegram_send_sticker("https://i.postimg.cc/TwHBy083/Dante-6.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/GmDm8Q7G/Dante-9.webp", bot_id, chat_id) # 
         elif num < 0.833333333333333:
-            telegram_send_sticker("https://i.postimg.cc/05h2Fd6v/Dante-7.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/MKNGp4Dz/Dante-10.webp", bot_id, chat_id) # 
         elif num < 0.916666666666667:
-            telegram_send_sticker("https://i.postimg.cc/5NvNVYvC/Dante-8.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/hGqP9d6w/Dante-11.webp", bot_id, chat_id) # 
+        elif num <= 0.95:
+            telegram_send_sticker("https://i.postimg.cc/KzGGWyZD/Dante-12.webp", bot_id, chat_id) # 
         elif num <= 1:
-            telegram_send_sticker("https://i.postimg.cc/zGFzysxD/Dante-9.jpg", bot_id, chat_id) # 
+            telegram_send_sticker("https://i.postimg.cc/9ftX1fjf/Dante-13.webp", bot_id, chat_id)
+
 
     return True
 

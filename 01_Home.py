@@ -185,3 +185,9 @@ st.write( "[🔗 Link to Google Sheets](" + spread.url + ")" )
 
 
 
+
+# st.write(lista_mazzi.dtypes)
+
+# deck_elo = lista_mazzi[lista_mazzi["deck_name"] == "Watt"]["elo"]
+# st.write(deck_elo)
+# st.write(deck_elo.iloc[0])

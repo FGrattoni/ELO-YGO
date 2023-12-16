@@ -13,7 +13,7 @@ lista_mazzi["Vittorie torneo"] = lista_mazzi["Vittorie torneo"].astype(int)
 ################################
 # PAGINA: "Classifiche"
 st.markdown("## 🏆 Classifica deck")
-classifica = lista_mazzi.iloc[1:,0:11].copy()
+classifica = lista_mazzi.iloc[:,0:11].copy()
 classifica = classifica.astype({"elo": int})
 classifica.columns = ["# Cat.", "Cat.", "Nome deck", "Elo", "Vinte", "Perse", "Percentuale", "Duellante", "Note", "Vittorie torneo", "Esclusione classifica"]
 classifica = classifica[classifica["Esclusione classifica"] != "escluso"]

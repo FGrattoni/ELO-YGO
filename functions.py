@@ -91,6 +91,12 @@ def elo_calculation(elo_before, elo_opponent, outcome, K = 32):
     score = outcome
 
     elo_after = elo_before + K * (score - expected_score_1)
+
+    if score == 1: 
+        elo_after = elo_before + min(25, max(4, K * (score - expected_score_1) )) 
+    if score == 0: 
+        elo_after = elo_before + min(-4, max(-25, K * (score - expected_score_1) )) 
+
     return round(elo_after, 1)
 
 

@@ -107,7 +107,7 @@ st.session_state['tournaments'] = tournaments
 ### APP ########################
 
 #st.markdown("# YGO ELO app")
-st.image("./YGMEME_title_2_1.png")
+st.image("./YGMEME_title_2_2.png")
 
 
 ################################
@@ -182,6 +182,8 @@ if button_insert_match:
 
 # Sheets
 st.write( "[🔗 Link to Google Sheets](" + spread.url + ")" )
+st.write( "[🔗 Link to telegram](" + "https://t.me/+0D4pf87-mvNlYzJk" + ")" )
+
 
 
 

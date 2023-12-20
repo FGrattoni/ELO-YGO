@@ -170,12 +170,8 @@ def update_deck_elo(deck_name1, deck_name2, elo_updated1, elo_updated2,
 
     prova = lista_mazzi
     prova['elo'] = pd.to_numeric(prova['elo'], errors='coerce')
-    st.write(prova)
     prova = prova.sort_values(by='elo', ascending = False, na_position='first')
-    st.write(prova)
     prova = prova.reset_index(drop=True)
-
-    st.write(prova)
 
     spread.df_to_sheet(prova, sheet = "mazzi", index = False)
 
@@ -594,6 +590,15 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
             telegram_send_sticker("https://i.postimg.cc/KzGGWyZD/Dante-12.webp", bot_id, chat_id) # 
         elif num <= 1:
             telegram_send_sticker("https://i.postimg.cc/9ftX1fjf/Dante-13.webp", bot_id, chat_id)
+    
+    elif mazzo_vincitore == "Watt" and (mazzo_perdente == "Insetti" or mazzo_perdente == "Inzektor"): 
+        telegram_send_sticker("https://i.postimg.cc/3xFk5vCH/Watt-insetti.webp", bot_id, chat_id)
+
+    elif mazzo_vincitore == "Watt": 
+        if num < 0.5:
+            telegram_send_sticker("https://i.postimg.cc/Y2TG1kqT/Watt-1.webp", bot_id, chat_id) # 
+        elif num < 1:
+            telegram_send_sticker("https://i.postimg.cc/XYbrz858/Watt-3.webp", bot_id, chat_id) # 
 
 
     return True

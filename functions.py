@@ -607,6 +607,15 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
             telegram_send_sticker("https://i.postimg.cc/htg2nSjp/Arcana-Force-2.webp", bot_id, chat_id)
         if num < 1:
             telegram_send_sticker("https://i.postimg.cc/66kHHVNs/Arcana-Force-3.webp", bot_id, chat_id)
+    
+    elif mazzo_vincitore == "Suship":
+        if num < 0.34:
+            telegram_send_sticker("https://i.postimg.cc/tJ426kKw/gunkan-suship-ikura-class-dreadnought-full-art-v0-tkgfkzceyq6b1-3712482667.webp", bot_id, chat_id)
+        if num < 0.67:
+            telegram_send_sticker("https://i.postimg.cc/hvZM1xgj/gunkan-suship-ikura-artwork-by-nhociory-dfb8rya-pre-3958157569.webp", bot_id, chat_id)
+
+        
+
         
 
 

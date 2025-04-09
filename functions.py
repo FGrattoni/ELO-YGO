@@ -599,6 +599,15 @@ def eventi_duello_messaggi(deck1, deck2, outcome, elo_deck1, elo_after_1, elo_de
             telegram_send_sticker("https://i.postimg.cc/Y2TG1kqT/Watt-1.webp", bot_id, chat_id) # 
         elif num < 1:
             telegram_send_sticker("https://i.postimg.cc/XYbrz858/Watt-3.webp", bot_id, chat_id) # 
+        
+    elif mazzo_vincitore == "Psichico Arcana":
+        if num < 0.34:
+            telegram_send_sticker("https://i.postimg.cc/xTL6Bk0X/Arcana-Force-1.webp", bot_id, chat_id)
+        if num < 0.67:
+            telegram_send_sticker("https://i.postimg.cc/htg2nSjp/Arcana-Force-2.webp", bot_id, chat_id)
+        if num < 1:
+            telegram_send_sticker("https://i.postimg.cc/66kHHVNs/Arcana-Force-3.webp", bot_id, chat_id)
+        
 
 
     return True

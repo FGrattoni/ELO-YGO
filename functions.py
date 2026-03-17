@@ -207,8 +207,8 @@ def storico_duelli(deck1, deck2, matches):
                     if matches.loc[index]["win_flag"] == 1: risultato = 1
                     else: risultato = 2
                     match_horizontal = [data, deck_name, deck_name2, risultato, elo_deck1, elo_deck2 ]
-                    match_horizontal = pd.Series(match_horizontal, index = matches_horizontal.columns)
-                    matches_horizontal = matches_horizontal.append(match_horizontal, ignore_index=True)
+                    match_horizontal = pd.DataFrame([match_horizontal], columns = matches_horizontal.columns)
+                    matches_horizontal = pd.concat([matches_horizontal, match_horizontal], ignore_index=True)
     # matches_horizontal.style.format(precision=0, formatter={("Elo deck 1"): "{:.1f}"})
     st.dataframe(
         matches_horizontal.style.format(
@@ -856,7 +856,7 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
     data_list_1 = pd.DataFrame(data_list_1)
     data_list_2 = pd.DataFrame(data_list_2)
     data_list = pd.concat([data_list_1, data_list_2], axis=0)
-    matches = matches.append(data_list, ignore_index=True)
+    matches = pd.concat([matches, data_list], ignore_index=True)
 
 
     ##### Duello 2
@@ -911,7 +911,7 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
         data_list_1 = pd.DataFrame(data_list_1)
         data_list_2 = pd.DataFrame(data_list_2)
         data_list = pd.concat([data_list_1, data_list_2], axis=0)
-        matches = matches.append(data_list, ignore_index=True)
+        matches = pd.concat([matches, data_list], ignore_index=True)
 
 
     ##### Duello 3
@@ -967,7 +967,7 @@ def insert_match2(matches, deck1, deck2, outcome1, outcome2, outcome3, tournamen
         data_list_1 = pd.DataFrame(data_list_1)
         data_list_2 = pd.DataFrame(data_list_2)
         data_list = pd.concat([data_list_1, data_list_2], axis=0)
-        matches = matches.append(data_list, ignore_index=True)
+        matches = pd.concat([matches, data_list], ignore_index=True)
 
 
     ### creazione variabile outcome_finale
